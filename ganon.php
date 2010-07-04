@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - PHP5+ version
- * Generated on 24 Jun 2010
+ * Generated on 4 Jul 2010
  *
  * @author Niels A.D.
  * @package Ganon
@@ -10,12 +10,17 @@
  */
 
 //START ganon.php
-function str_get_html($str, $return_root = true) {
+function str_get_dom($str, $return_root = true) {
 	$a = new HTML_Parser_HTML5($str);
 	return (($return_root) ? $a->root : $a);
 }
-function file_get_html($file, $return_root = true) {
-	return str_get_html(file_get_contents($file), $return_root);
+function file_get_dom($file, $return_root = true) {
+	$f = file_get_contents($file);
+	return (($f === false) ? false : str_get_dom($f, $return_root));
+}
+function dom_format(&$root, $options = array()) {
+	$formatter = new HTML_Formatter($options);
+	return $formatter->format($root);
 }
 if (version_compare(PHP_VERSION, '5.0.0', '<')) {
 	function str_split($string) {
@@ -624,7 +629,23 @@ class HTML_Parser extends HTML_Parser_Base {
 			$this->status['self_close'] = ($self_close = isset($this->tags_selfclose[strtolower($this->status['tag_name'])]));
 		}
 		if ($self_close) {
-			if ($this->status['tag_name'][0] === '?') {
+			if ($this->status['closing_tag']) {
+				$c = end($this->hierarchy)->children;
+				$found = false;
+				for ($count = count($c), $i = $count - 1; $i >= 0; $i--) {
+					if (strcasecmp($c[$i]->tag, $this->status['tag_name']) === 0) {
+						for($ii = $i + 1; $ii < $count; $ii++) {
+							$c[$i + 1]->changeParent($c[$i]);
+						}
+						$c[$i]->self_close = false;
+						$found = true;
+						break;
+					}
+				}
+				if (!$found) {
+					$this->addError('Closing tag "'.$this->status['tag_name'].'" which is not open');
+				}
+			} elseif ($this->status['tag_name'][0] === '?') {
 				end($this->hierarchy)->addXML($this->status['tag_name'], '', $this->status['attributes']);
 			} elseif ($this->status['tag_name'][0] === '%') {
 				end($this->hierarchy)->addASP($this->status['tag_name'], '', $this->status['attributes']);
@@ -794,7 +815,6 @@ class HTML_Node {
 	const NODE_DOCTYPE = 5;
 	const NODE_XML = 6;
 	const NODE_ASP = 7;
-	const NODE_TYPE = self::NODE_ELEMENT;
 	var $selectClass = 'HTML_Selector';
 	var $parserClass = 'HTML_Parser_HTML5';
 	var $childClass = __CLASS__;
@@ -817,7 +837,7 @@ class HTML_Node {
 	var $filter_map = array(
 		'root' => 'filter_root',
 		'nth-child' => 'filter_nchild',
-		'eg' => 'filter_nchild', 
+		'eq' => 'filter_nchild', 
 		'gt' => 'filter_gt',
 		'lt' => 'filter_lt',
 		'nth-last-child' => 'filter_nlastchild',
@@ -858,7 +878,7 @@ class HTML_Node {
 		$this->delete();
 	}
 	function __toString() {
-		return $this->tag;
+		return (($this->tag === '~root~') ? $this->getInnerText() : $this->tag);
 	}
 	function __get($attribute) {
 		return $this->getAttribute($attribute);
@@ -951,7 +971,7 @@ class HTML_Node {
 		return (($parser && $parser->errors) ? $parser->errors : true);
 	}
 	function getPlainText() {
-		return html_entity_decode($this->toString(true, true, true), ENT_QUOTES);
+		return preg_replace('`\s+`', ' ', html_entity_decode($this->toString(true, true, true), ENT_QUOTES));
 	}
 	function setPlainText($text) {
 		$this->clear();
@@ -1385,10 +1405,10 @@ class HTML_Node {
 		$f = $this->findAttribute($attr, $compare, $case_sensitive);
 		if (is_array($f) && $f) {
 			foreach($f as $a) {
-				$this->attributes[$a[2]] = $val;
+				$this->attributes[$a[2]] = (string) $val;
 			}
 		} else {
-			$this->attributes[$attr] = $val;
+			$this->attributes[$attr] = (string) $val;
 		}
 	}
 	function addAttribute($attr, $val) {
@@ -1539,7 +1559,7 @@ class HTML_Node {
 			} elseif (!($res && ($match['operator_result'] === 'or'))) {
 				$possibles = $this->findAttribute($attribute, $match['compare'], $match['case_sensitive']);
 				$has = (is_array($possibles) && $possibles);
-				$res = ($match['value'] === $has);
+				$res = (($match['value'] === $has) || (($match['match'] === false) && ($has === $match['match'])));
 				if ((!$res) && $has && is_string($match['value'])) {
 					foreach($possibles as $a) {
 						$val = $this->attributes[$a[2]];
@@ -1722,7 +1742,7 @@ CALLBACK;
 		}
 	}
 	protected function filter_root() {
-		return ($this->parent === null) || ($this->parent->parent === null);
+		return (strtolower($this->tag) === 'html');
 	}
 	protected function filter_nchild($n) {
 		return ($this->index(false) === (int) $n);
@@ -1830,7 +1850,6 @@ CALLBACK;
 	}
 }
 class HTML_NODE_TEXT extends HTML_Node {
-	const NODE_TYPE = self::NODE_TEXT;
 	var $tag = '~text~';
 	var $text = '';
 	function __construct($parent, $text = '') {
@@ -1842,7 +1861,6 @@ class HTML_NODE_TEXT extends HTML_Node {
 	function toString() {return $this->text;}
 }
 class HTML_NODE_COMMENT extends HTML_Node {
-	const NODE_TYPE = self::NODE_COMMENT;
 	var $tag = '~comment~';
 	var $text = '';
 	function __construct($parent, $text = '') {
@@ -1854,7 +1872,6 @@ class HTML_NODE_COMMENT extends HTML_Node {
 	function toString() {return '<!--'.$this->text.'-->';}
 }
 class HTML_NODE_CONDITIONAL extends HTML_Node {
-	const NODE_TYPE = self::NODE_CONDITIONAL;
 	var $tag = '~conditional~';
 	var $condition = '';
 	function __construct($parent, $condition = '', $hidden = true) {
@@ -1879,7 +1896,6 @@ class HTML_NODE_CONDITIONAL extends HTML_Node {
 	}
 }
 class HTML_NODE_CDATA extends HTML_Node {
-	const NODE_TYPE = self::NODE_CDATA;
 	var $tag = '~cdata~';
 	var $text = '';
 	function __construct($parent, $text = '') {
@@ -1891,7 +1907,6 @@ class HTML_NODE_CDATA extends HTML_Node {
 	function toString() {return '<![CDATA['.$this->text.']]>';}
 }
 class HTML_NODE_DOCTYPE extends HTML_Node {
-	const NODE_TYPE = self::NODE_DOCTYPE;
 	var $tag = '!DOCTYPE';
 	var $dtd = '';
 	function __construct($parent, $dtd = '') {
@@ -1926,13 +1941,11 @@ class HTML_NODE_EMBEDDED extends HTML_Node {
 	}
 }
 class HTML_NODE_XML extends HTML_NODE_EMBEDDED {
-	const NODE_TYPE = self::NODE_XML;
 	function __construct($parent, $tag = 'xml', $text = '', $attributes = array()) {
 		return parent::__construct($parent, '?', $tag, $text, $attributes);
 	}
 }
 class HTML_NODE_ASP extends HTML_NODE_EMBEDDED {
-	const NODE_TYPE = self::NODE_ASP;
 	function __construct($parent, $tag = '', $text = '', $attributes = array()) {
 		return parent::__construct($parent, '%', $tag, $text, $attributes);
 	}
@@ -2544,9 +2557,6 @@ func;
 //END gan_selector_html.php
 
 //START gan_formatter.php
-function compress_whitespace($text) {
-	return preg_replace('`\s+`', ' ', $text);
-}
 function indent_text($text, $indent, $indent_string = '  ') {
 	if ($indent && $indent_string) {
 		return str_replace("\n", "\n".str_repeat($indent_string, $indent), $text);
@@ -2629,7 +2639,7 @@ class HTML_Formatter {
 			}
 		}
 		foreach($root->select('(!pre + !xmp + !style + !script + !"?php" + !"~text~" + !"~comment~"):not-empty > "~text~"', false, $recursive, true) as $c) {
-			$c->text = compress_whitespace($c->text);
+			$c->text = preg_replace('`\s+`', ' ', $c->text);
 		}
 	}
 	static function minify_javascript(&$root, $indent_string = ' ', $wrap_comment = true, $recursive = true) {
@@ -2679,16 +2689,16 @@ class HTML_Formatter {
 		$root_tag = strtolower($root->tag);
 		$in_block = isset($this->block_elements[$root_tag]) && $this->block_elements[$root_tag]['as_block'];
 		$child_count = count($root->children);
+		if (isset($this->options['attributes_case']) && $this->options['attributes_case']) {
+			$root->attributes = array_change_key_case($root->attributes, $this->options['attributes_case']);
+			$root->attributes_ns = null;
+		}	
 		if (isset($this->options['sort_attributes']) && $this->options['sort_attributes']) {
 			if ($this->options['sort_attributes'] === 'reverse') {
 				krsort($root->attributes);
 			} else {
 				ksort($root->attributes);
 			}
-		}
-		if (isset($this->options['attributes_case']) && $this->options['attributes_case']) {
-			$root->attributes = array_change_key_case($root->attributes, $this->options['attributes_case']);
-			$root->attributes_ns = null;
 		}
 		if ($root::NODE_TYPE === $root::NODE_ELEMENT) {
 			$root->setTag(strtolower($root->tag), true);
@@ -2771,6 +2781,7 @@ class HTML_Formatter {
 			$prev_tag = $n_tag;
 			$prev_asblock = $as_block;
 		}
+		return true;
 	}
 	function format(&$node) {
 		$this->errors = array();
