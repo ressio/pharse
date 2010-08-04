@@ -946,8 +946,8 @@ class HTML_Node {
 			}
 			$parser->setDoc($text);
 			$parser->parse_all();
-			foreach($parser->root->children as &$c) {
-				$this->parent->addChild($c, $index);
+			foreach(array_keys($parser->root->children) as $k) {
+				$this->parent->addChild($parser->root->children[$k], $index);
 			}
 		}
 		$this->delete();
@@ -992,8 +992,8 @@ class HTML_Node {
 		if (($p = $this->parent) !== null) {
 			$this->parent = null;
 			if ($move_children_up) {
-				foreach($this->children as &$c) {
-					$c->changeParent($p);
+				foreach(array_keys($this->children) as $k) {
+					$this->children[$k]->changeParent($p);
 				}
 			}
 			$p->deleteChild($this, true);
@@ -1059,11 +1059,11 @@ class HTML_Node {
 			return $this->parent->findChild($this);
 		} else{
 			$index = -1;
-			foreach($this->parent->children as &$c) {
-				if (!$c->isTextOrComment()) {
+			foreach(array_keys($this->parent->children) as $k) {
+				if (!$this->parent->children[$k]->isTextOrComment()) {
 					++$index;
 				}
-				if ($c === $this) {
+				if ($this->parent->children[$k] === $this) {
 					return $index;
 				}
 			}
@@ -1084,11 +1084,11 @@ class HTML_Node {
 			return -1;
 		} else {
 			$index = -1;
-			foreach($this->parent->children as &$c) {
-				if (strcasecmp($this->tag, $c->tag) === 0) {
+			foreach(array_keys($this->parent->children) as $k) {
+				if (strcasecmp($this->tag, $this->parent->children[$k]->tag) === 0) {
 					++$index;
 				}
-				if ($c === $this) {
+				if ($this->parent->children[$k] === $this) {
 					return $index;
 				}
 			}
@@ -1165,8 +1165,8 @@ class HTML_Node {
 			return count($this->children);
 		} else{
 			$count = 0;
-			foreach($this->children as &$c) {
-				if (!$c->isTextOrComment()) {
+			foreach(array_keys($this->children) as $k) {
+				if (!$this->children[$k]->isTextOrComment()) {
 					++$count;
 				}
 			}
@@ -1188,12 +1188,12 @@ class HTML_Node {
 		if ($ignore_text_comments) {
 			$count = 0;
 			$last = null;
-			foreach($this->children as $i => &$c) {
-				if (!$c->isTextOrComment()) {
+			foreach(array_keys($this->children) as $k) {
+				if (!$this->children[$k]->isTextOrComment()) {
 					if (++$count === $child) {
-						return $c;
+						return $this->children[$k]
 					}
-					$last = $c;
+					$last = $this->children[$k];
 				}
 			}
 			return (($child > $count) ? $last : null);
@@ -1258,8 +1258,8 @@ class HTML_Node {
 		}
 		unset($this->children[$child]);
 		$tmp = array();
-		foreach($this->children as &$c) {
-			$tmp[] =& $c;
+		foreach(array_keys($this->children) as $k) {
+			$tmp[] =& $this->children[$k];
 		}
 		$this->children = $tmp;
 	}
@@ -1628,7 +1628,7 @@ class HTML_Node {
 		return $res;
 	}
 	protected function match_filters($conditions, $custom_filters = array()) {
-		foreach($conditions as &$c) {
+		foreach($conditions as $c) {
 			$c['filter'] = strtolower($c['filter']);
 			if (isset($this->filter_map[$c['filter']])) {
 				if (!$this->{$this->filter_map[$c['filter']]}($c['params'])) {
@@ -2522,12 +2522,12 @@ func;
 		if (($c = $this->parse_conditions()) === false) {
 			return false;
 		}
-		foreach($tmp as &$t) {
-			$this->root = (($parent) ? $t->parent : $t);
+		foreach(array_keys($tmp) as $t) {
+			$this->root = (($parent) ? $tmp[$t]->parent : $tmp[$t]);
 			$this->parse_callback($c, $recursive);
-			foreach($this->result as &$r) {
-				if (!in_array($r, $tmp_res, true)) {
-					$tmp_res[] = $r;
+			foreach(array_keys($this->result) as $r) {
+				if (!in_array($this->result[$r], $tmp_res, true)) {
+					$tmp_res[] = $this->result[$r];
 				}
 			}
 		}
