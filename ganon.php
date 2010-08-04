@@ -815,6 +815,7 @@ class HTML_Node {
 	const NODE_DOCTYPE = 5;
 	const NODE_XML = 6;
 	const NODE_ASP = 7;
+	const NODE_TYPE = self::NODE_ELEMENT;
 	var $selectClass = 'HTML_Selector';
 	var $parserClass = 'HTML_Parser_HTML5';
 	var $childClass = __CLASS__;
@@ -1859,6 +1860,7 @@ CALLBACK;
 	}
 }
 class HTML_NODE_TEXT extends HTML_Node {
+	const NODE_TYPE = self::NODE_TEXT;
 	var $tag = '~text~';
 	var $text = '';
 	function __construct($parent, $text = '') {
@@ -1874,6 +1876,7 @@ class HTML_NODE_TEXT extends HTML_Node {
 	function toString() {return $this->text;}
 }
 class HTML_NODE_COMMENT extends HTML_Node {
+	const NODE_TYPE = self::NODE_COMMENT;
 	var $tag = '~comment~';
 	var $text = '';
 	function __construct($parent, $text = '') {
@@ -1889,6 +1892,7 @@ class HTML_NODE_COMMENT extends HTML_Node {
 	function toString() {return '<!--'.$this->text.'-->';}
 }
 class HTML_NODE_CONDITIONAL extends HTML_Node {
+	const NODE_TYPE = self::NODE_CONDITIONAL;
 	var $tag = '~conditional~';
 	var $condition = '';
 	function __construct($parent, $condition = '', $hidden = true) {
@@ -1914,6 +1918,7 @@ class HTML_NODE_CONDITIONAL extends HTML_Node {
 	}
 }
 class HTML_NODE_CDATA extends HTML_Node {
+	const NODE_TYPE = self::NODE_CDATA;
 	var $tag = '~cdata~';
 	var $text = '';
 	function __construct($parent, $text = '') {
@@ -1926,6 +1931,7 @@ class HTML_NODE_CDATA extends HTML_Node {
 	function toString() {return '<![CDATA['.$this->text.']]>';}
 }
 class HTML_NODE_DOCTYPE extends HTML_Node {
+	const NODE_TYPE = self::NODE_DOCTYPE;
 	var $tag = '!DOCTYPE';
 	var $dtd = '';
 	function __construct($parent, $dtd = '') {
@@ -1962,11 +1968,13 @@ class HTML_NODE_EMBEDDED extends HTML_Node {
 	}
 }
 class HTML_NODE_XML extends HTML_NODE_EMBEDDED {
+	const NODE_TYPE = self::NODE_XML;
 	function __construct($parent, $tag = 'xml', $text = '', $attributes = array()) {
 		return parent::__construct($parent, '?', $tag, $text, $attributes);
 	}
 }
 class HTML_NODE_ASP extends HTML_NODE_EMBEDDED {
+	const NODE_TYPE = self::NODE_ASP;
 	function __construct($parent, $tag = '', $text = '', $attributes = array()) {
 		return parent::__construct($parent, '%', $tag, $text, $attributes);
 	}
