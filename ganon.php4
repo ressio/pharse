@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - modified for PHP4
- * Generated on 4 Aug 2010
+ * Generated on 5 Aug 2010
  *
  * @author Niels A.D.
  * @package Ganon
@@ -666,7 +666,7 @@ class HTML_Parser extends HTML_Parser_Base {
 		}
 		if ($self_close) {
 			if ($this->status['closing_tag']) {
-				$c = end($this->hierarchy)->children;
+				$c = $this->hierarchy[count($this->hierarchy) - 1]->children;
 				$found = false;
 				for ($count = count($c), $i = $count - 1; $i >= 0; $i--) {
 					if (strcasecmp($c[$i]->tag, $this->status['tag_name']) === 0) {
@@ -682,11 +682,11 @@ class HTML_Parser extends HTML_Parser_Base {
 					$this->addError('Closing tag "'.$this->status['tag_name'].'" which is not open');
 				}
 			} elseif ($this->status['tag_name'][0] === '?') {
-				end($this->hierarchy)->addXML($this->status['tag_name'], '', $this->status['attributes']);
+				$this->hierarchy[count($this->hierarchy) - 1]->addXML($this->status['tag_name'], '', $this->status['attributes']);
 			} elseif ($this->status['tag_name'][0] === '%') {
-				end($this->hierarchy)->addASP($this->status['tag_name'], '', $this->status['attributes']);
+				$this->hierarchy[count($this->hierarchy) - 1]->addASP($this->status['tag_name'], '', $this->status['attributes']);
 			} else {
-				end($this->hierarchy)->addChild($this->status);
+				$this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);;
 			}
 		} elseif ($this->status['closing_tag']) {
 			$found = false;
@@ -706,23 +706,23 @@ class HTML_Parser extends HTML_Parser_Base {
 				$this->addError('Closing tag "'.$this->status['tag_name'].'" which is not open');
 			}
 		} else {
-			$this->hierarchy[] = end($this->hierarchy)->addChild($this->status);
+			$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);	
 		}
 	}
 	function parse_cdata() {
 		if (!parent::parse_cdata()) {return false;}
-		end($this->hierarchy)->addCDATA($this->status['cdata']);
+		$this->hierarchy[count($this->hierarchy) - 1]->addCDATA($this->status['cdata']);
 		return true;
 	}
 	function parse_comment() {
 		if (!parent::parse_comment()) {return false;}
-		end($this->hierarchy)->addComment($this->status['comment']);
+		$this->hierarchy[count($this->hierarchy) - 1]->addComment($this->status['comment']);
 		return true;
 	}
 	function parse_conditional() {
 		if (!parent::parse_conditional()) {return false;}
 		if ($this->status['comment']) {
-			$e = end($this->hierarchy)->addConditional($this->status['tag_condition'], true);
+			$e = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], true);
 			if ($this->status['text']) {
 				$e->addText($this->status['text']);
 			}
@@ -730,29 +730,29 @@ class HTML_Parser extends HTML_Parser_Base {
 			if ($this->status['closing_tag']) {
 				$this->parse_hierarchy(false);
 			} else {
-				$this->hierarchy[] = end($this->hierarchy)->addConditional($this->status['tag_condition'], false);
+				$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], false);
 			}
 		}
 		return true;
 	}
 	function parse_doctype() {
 		if (!parent::parse_doctype()) {return false;}
-		end($this->hierarchy)->addDoctype($this->status['dtd']);
+		$this->hierarchy[count($this->hierarchy) - 1]->addDoctype($this->status['dtd']);
 		return true;
 	}
 	function parse_php() {
 		if (!parent::parse_php()) {return false;}
-		end($this->hierarchy)->addXML('php', $this->status['text']);
+		$this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text']);
 		return true;
 	}
 	function parse_asp() {
 		if (!parent::parse_asp()) {return false;}
-		end($this->hierarchy)->addASP('', $this->status['text']);
+		$this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text']);
 		return true;
 	}
 	function parse_script() {
 		if (!parent::parse_script()) {return false;}
-		$e = end($this->hierarchy)->addChild($this->status);
+		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);
 		if ($this->status['text']) {
 			$e->addText($this->status['text']);
 		}
@@ -760,7 +760,7 @@ class HTML_Parser extends HTML_Parser_Base {
 	}
 	function parse_style() {
 		if (!parent::parse_style()) {return false;}
-		$e = end($this->hierarchy)->addChild($this->status);
+		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);
 		if ($this->status['text']) {
 			$e->addText($this->status['text']);
 		}
@@ -774,7 +774,7 @@ class HTML_Parser extends HTML_Parser_Base {
 	function parse_text() {
 		parent::parse_text();
 		if ($this->status['text']) {
-			end($this->hierarchy)->addText($this->status['text']);
+			$this->hierarchy[count($this->hierarchy) - 1]->addText($this->status['text']);
 		}
 	}
 	function parse_all() {
@@ -831,7 +831,7 @@ class HTML_Parser_HTML5 extends HTML_Parser {
 			$this->status['self_close'] = ($self_close = isset($this->tags_selfclose[$tag_curr]));
 		}
 		if (! ($self_close || $this->status['closing_tag'])) {
-			$tag_prev = strtolower(end($this->hierarchy)->tag);
+			$tag_prev = strtolower($this->hierarchy[count($this->hierarchy) - 1]->tag);			
 			if (isset($this->tags_optional_close[$tag_curr]) && isset($this->tags_optional_close[$tag_curr][$tag_prev])) {
 				array_pop($this->hierarchy);
 			}
@@ -2783,7 +2783,7 @@ class HTML_Formatter {
 					}
 				}
 				if ($format_inside) {
-					$last = end($n->children);
+					$last = $n->children[count($n->children) - 1];
 					$last_tag = ($last) ? strtolower($last->tag) : '';
 					$last_asblock = ($last_tag && isset($this->block_elements[$last_tag]) && $this->block_elements[$last_tag]['as_block']);
 					if (($n->childCount(true) > 0) || (trim($n->getPlainText()))) {
