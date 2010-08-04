@@ -43,18 +43,56 @@ if (version_compare(PHP_VERSION, '5.2.0', '<')) {
 }
 //END ganon.php
 
+define('TOK_NULL', 0);
+define('TOK_UNKNOWN', 1);
+define('TOK_WHITESPACE', 2);
+define('TOK_IDENTIFIER', 3);
+define('TOK_TAG_OPEN', 100);
+define('TOK_TAG_CLOSE', 101);
+define('TOK_SLASH_FORWARD', 103);
+define('TOK_SLASH_BACKWARD', 104);
+define('TOK_STRING', 104);
+define('TOK_EQUALS', 105);
+define('NODE_ELEMENT', 0);
+define('NODE_TEXT', 1);
+define('NODE_COMMENT', 2);
+define('NODE_CONDITIONAL', 3);
+define('NODE_CDATA', 4);
+define('NODE_DOCTYPE', 5);
+define('NODE_XML', 6);
+define('NODE_ASP', 7);
+define('TOK_BRACKET_OPEN', 100);
+define('TOK_BRACKET_CLOSE', 101);
+define('TOK_BRACE_OPEN', 102);
+define('TOK_BRACE_CLOSE', 103);
+define('TOK_COLON', 105);
+define('TOK_COMMA', 106);
+define('TOK_NOT', 107);
+define('TOK_ALL', 108);
+define('TOK_PIPE', 109);
+define('TOK_PLUS', 110);
+define('TOK_SIBLING', 111);
+define('TOK_CLASS', 112);
+define('TOK_ID', 113);
+define('TOK_CHILD', 114);
+define('TOK_COMPARE_PREFIX', 115);
+define('TOK_COMPARE_CONTAINS', 116);
+define('TOK_COMPARE_CONTAINS_WORD', 117);
+define('TOK_COMPARE_ENDS', 118);
+define('TOK_COMPARE_EQUALS', 119);
+define('TOK_COMPARE_NOT_EQUAL', 120);
+define('TOK_COMPARE_BIGGER_THAN', 121);
+define('TOK_COMPARE_SMALLER_THAN', 122);
+define('TOK_COMPARE_REGEX', 123);
+define('TOK_COMPARE_STARTS', 124);
 
 //START gan_tokenizer.php
 class Tokenizer_Base {
-	const TOK_NULL = 0;
-	const TOK_UNKNOWN = 1;
-	const TOK_WHITESPACE = 2;
-	const TOK_IDENTIFIER = 3;
 	var $doc = '';
 	var $size = 0;
 	var $pos = 0;
 	var $line_pos = array(0, 0);
-	var $token = self::TOK_NULL;
+	var $token = TOK_NULL;
 	var $token_start = null;
 	var $whitespace = " \t\n\r\0\x0B";
 	var $identifiers = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_';
@@ -66,6 +104,7 @@ class Tokenizer_Base {
 		$this->setIdentifiers($this->identifiers);
 		$this->setDoc($doc, $pos);
 	}
+	function Tokenizer_Base($doc = '', $pos = 0) {return $this->__construct($doc, $pos);}
 	function setDoc($doc, $pos = 0) {
 		$this->doc = $doc;
 		$this->size = strlen($doc);
@@ -125,7 +164,7 @@ class Tokenizer_Base {
 		unset($this->custom_char_map[$char]);
 		$this->buildCharMap();
 	}
-	protected function buildCharMap() {
+	function buildCharMap() {
 		$this->char_map = $this->custom_char_map;
 		if (is_array($this->whitespace)) {
 			foreach($this->whitespace as $w => $v) {
@@ -141,7 +180,7 @@ class Tokenizer_Base {
 	function addError($error) {
 		$this->errors[] = htmlentities($error.' at '.($this->line_pos[0] + 1).', '.($this->pos - $this->line_pos[1] + 1).'!');
 	}
-	protected function parse_whitespace() {
+	function parse_whitespace() {
 		$this->token_start = $this->pos;
 		while(++$this->pos < $this->size) {
 			if (!isset($this->whitespace[$this->doc[$this->pos]])) {
@@ -158,13 +197,13 @@ class Tokenizer_Base {
 			}
 		}
 		--$this->pos;
-		return self::TOK_WHITESPACE;
+		return TOK_WHITESPACE;
 	}
-	protected function parse_identifier() {
+	function parse_identifier() {
 		$this->token_start = $this->pos;
 		while((++$this->pos < $this->size) && isset($this->identifiers[$this->doc[$this->pos]])) {}
 		--$this->pos;
-		return self::TOK_IDENTIFIER;
+		return TOK_IDENTIFIER;
 	}
 	function next() {
 		$this->token_start = null;
@@ -176,10 +215,10 @@ class Tokenizer_Base {
 					return ($this->token = $this->char_map[$this->doc[$this->pos]]);
 				}
 			} else {
-				return ($this->token = self::TOK_UNKNOWN);
+				return ($this->token = TOK_UNKNOWN);
 			}
 		} else {
-			return ($this->token = self::TOK_NULL);
+			return ($this->token = TOK_NULL);
 		}
 	}
 	function next_no_whitespace() {
@@ -193,7 +232,7 @@ class Tokenizer_Base {
 						return ($this->token = $this->char_map[$this->doc[$this->pos]]);
 					}
 				} else {
-					return ($this->token = self::TOK_UNKNOWN);
+					return ($this->token = TOK_UNKNOWN);
 				}
 			} elseif($this->doc[$this->pos] === "\r") {
 				++$this->line_pos[0];
@@ -206,7 +245,7 @@ class Tokenizer_Base {
 				$this->line_pos[1] = $this->pos;
 			}
 		}
-		return ($this->token = self::TOK_NULL);
+		return ($this->token = TOK_NULL);
 	}
 	function next_search($characters, $callback = true) {
 		$this->token_start = $this->pos;
@@ -222,7 +261,7 @@ class Tokenizer_Base {
 						return ($this->token = $this->char_map[$this->doc[$this->pos]]);
 					}
 				} else {
-					return ($this->token = self::TOK_UNKNOWN);
+					return ($this->token = TOK_UNKNOWN);
 				}
 			} elseif($this->doc[$this->pos] === "\r") {
 				++$this->line_pos[0];
@@ -235,7 +274,7 @@ class Tokenizer_Base {
 				$this->line_pos[1] = $this->pos;
 			}
 		}
-		return ($this->token = self::TOK_NULL);
+		return ($this->token = TOK_NULL);
 	}
 	function next_pos($needle, $callback = true) {
 		$this->token_start = $this->pos;
@@ -261,14 +300,14 @@ class Tokenizer_Base {
 					return ($this->token = $this->char_map[$this->doc[$this->pos]]);
 				}
 			} else {
-				return ($this->token = self::TOK_UNKNOWN);
+				return ($this->token = TOK_UNKNOWN);
 			}
 		} else {
 			$this->pos = $this->size;
-			return ($this->token = self::TOK_NULL);
+			return ($this->token = TOK_NULL);
 		}
 	}
-	protected function expect($token, $do_next = true, $try_next = false, $next_on_match = 1) {
+	function expect($token, $do_next = true, $try_next = false, $next_on_match = 1) {
 		if ($do_next) {
 			if ($do_next === 1) {
 				$this->next();
@@ -282,7 +321,7 @@ class Tokenizer_Base {
 				return false;
 			}
 		} else {
-			if (($this->doc[$this->pos] !== $token) && ((!$try_next) || (((($try_next === 1) && ($this->next() !== self::TOK_NULL)) || (($try_next === true) && ($this->next_no_whitespace() !== self::TOK_NULL))) && ($this->doc[$this->pos] !== $token)))) {
+			if (($this->doc[$this->pos] !== $token) && ((!$try_next) || (((($try_next === 1) && ($this->next() !== TOK_NULL)) || (($try_next === true) && ($this->next_no_whitespace() !== TOK_NULL))) && ($this->doc[$this->pos] !== $token)))) {
 				$this->addError('Expected "'.$token.'", but found "'.$this->getTokenString().'"');
 				return false;
 			}
@@ -301,27 +340,22 @@ class Tokenizer_Base {
 
 //START gan_parser_html.php
 class HTML_Parser_Base extends Tokenizer_Base {
-	const TOK_TAG_OPEN = 100;
-	const TOK_TAG_CLOSE = 101;
-	const TOK_SLASH_FORWARD = 103;
-	const TOK_SLASH_BACKWARD = 104;
-	const TOK_STRING = 104;
-	const TOK_EQUALS = 105;
 	var $identifiers = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890:-_!?%';
 	var $status = array();
 	var $custom_char_map = array(
-		'<' => self::TOK_TAG_OPEN,
-		'>' => self::TOK_TAG_CLOSE,
+		'<' => TOK_TAG_OPEN,
+		'>' => TOK_TAG_CLOSE,
 		"'" => 'parse_string',
 		'"' => 'parse_string',
-		'/' => self::TOK_SLASH_FORWARD,
-		'\\' => self::TOK_SLASH_BACKWARD,
-		'=' => self::TOK_EQUALS
+		'/' => TOK_SLASH_FORWARD,
+		'\\' => TOK_SLASH_BACKWARD,
+		'=' => TOK_EQUALS
 	);
 	function __construct($doc = '', $pos = 0) {
 		parent::__construct($doc, $pos);
 		$this->parse_all();
 	}
+	function HTML_Parser_Base($doc = '', $pos = 0) {return $this->__construct($doc, $pos);}
 	var $tag_map = array(
 		'!doctype' => 'parse_doctype',
 		'?' => 'parse_php',
@@ -330,11 +364,11 @@ class HTML_Parser_Base extends Tokenizer_Base {
 		'style' => 'parse_style',
 		'script' => 'parse_script'
 	);
-	protected function parse_string() {
-		if ($this->next_pos($this->doc[$this->pos], false) !== self::TOK_UNKNOWN) {
+	function parse_string() {
+		if ($this->next_pos($this->doc[$this->pos], false) !== TOK_UNKNOWN) {
 			--$this->pos;
 		}
-		return self::TOK_STRING;
+		return TOK_STRING;
 	}
 	function parse_text() {
 		$len = $this->pos - 1 - $this->status['last_pos'];
@@ -342,7 +376,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	}
 	function parse_comment() {
 		$this->pos += 3;
-		if ($this->next_pos('-->', false) !== self::TOK_UNKNOWN) {
+		if ($this->next_pos('-->', false) !== TOK_UNKNOWN) {
 			$this->status['comment'] = $this->getTokenString(1, -1);
 			--$this->pos;
 		} else {
@@ -354,9 +388,9 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	}
 	function parse_doctype() {
 		$start = $this->pos;
-		if ($this->next_search('[>', false) === self::TOK_UNKNOWN)  {
+		if ($this->next_search('[>', false) === TOK_UNKNOWN)  {
 			if ($this->doc[$this->pos] === '[') {
-				if (($this->next_pos(']', false) !== self::TOK_UNKNOWN) || ($this->next_pos('>', false) !== self::TOK_UNKNOWN)) {
+				if (($this->next_pos(']', false) !== TOK_UNKNOWN) || ($this->next_pos('>', false) !== TOK_UNKNOWN)) {
 					$this->addError('Invalid doctype');
 					return false;
 				}
@@ -371,7 +405,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 		}
 	}
 	function parse_cdata() {
-		if ($this->next_pos(']]>', false) === self::TOK_UNKNOWN) {
+		if ($this->next_pos(']]>', false) === TOK_UNKNOWN) {
 			$this->status['cdata'] = $this->getTokenString(9, -1);
 			$this->status['last_pos'] = $this->pos + 2;
 			return true;
@@ -382,7 +416,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	}
 	function parse_php() {
 		$start = $this->pos;
-		if ($this->next_pos('?>', false) !== self::TOK_UNKNOWN) {
+		if ($this->next_pos('?>', false) !== TOK_UNKNOWN) {
 			$this->pos -= 2; 
 		}
 		$len = $this->pos - 1 - $start;
@@ -392,7 +426,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	}
 	function parse_asp() {
 		$start = $this->pos;
-		if ($this->next_pos('%>', false) !== self::TOK_UNKNOWN) {
+		if ($this->next_pos('%>', false) !== TOK_UNKNOWN) {
 			$this->pos -= 2; 
 		}
 		$len = $this->pos - 1 - $start;
@@ -401,7 +435,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 		return true;
 	}
 	function parse_style() {
-		if ($this->parse_attributes() && ($this->token === self::TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_pos('</style>', false) === self::TOK_UNKNOWN)) {
+		if ($this->parse_attributes() && ($this->token === TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_pos('</style>', false) === TOK_UNKNOWN)) {
 			$len = $this->pos - 1 - $start;
 			$this->status['text'] = (($len > 0) ? substr($this->doc, $start + 1, $len) : '');
 			$this->pos += 7;
@@ -413,7 +447,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 		}
 	}
 	function parse_script() {
-		if ($this->parse_attributes() && ($this->token === self::TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_pos('</script>', false) === self::TOK_UNKNOWN)) {
+		if ($this->parse_attributes() && ($this->token === TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_pos('</script>', false) === TOK_UNKNOWN)) {
 			$len = $this->pos - 1 - $start;
 			$this->status['text'] = (($len > 0) ? substr($this->doc, $start + 1, $len) : '');
 			$this->pos += 8;
@@ -429,19 +463,19 @@ class HTML_Parser_Base extends Tokenizer_Base {
 			$this->pos += 8;
 		} else {
 			$this->pos += (($this->status['comment']) ? 5 : 3);
-			if ($this->next_pos(']', false) !== self::TOK_UNKNOWN) {
+			if ($this->next_pos(']', false) !== TOK_UNKNOWN) {
 				$this->addError('"]" not found in conditional tag');
 				return false;
 			}
 			$this->status['tag_condition'] = $this->getTokenString(0, -1);
 		}
-		if ($this->next_no_whitespace() !== self::TOK_TAG_CLOSE) {
+		if ($this->next_no_whitespace() !== TOK_TAG_CLOSE) {
 			$this->addError('No ">" tag found 2 for conditional tag');
 			return false;
 		}
 		if ($this->status['comment']) {
 			$this->status['last_pos'] = $this->pos;
-			if ($this->next_pos('-->', false) !== self::TOK_UNKNOWN) {
+			if ($this->next_pos('-->', false) !== TOK_UNKNOWN) {
 				$this->addError('No ending tag found for conditional tag');
 				$this->pos = $this->size - 1;
 				$len = $this->pos - 1 - $this->status['last_pos'];
@@ -457,13 +491,13 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	}
 	function parse_attributes() {
 		$this->status['attributes'] = array();
-		while ($this->next_no_whitespace() === self::TOK_IDENTIFIER) {
+		while ($this->next_no_whitespace() === TOK_IDENTIFIER) {
 			$attr = $this->getTokenString();
 			if (($attr === '?') || ($attr === '%')) {
 				break;
 			}
-			if ($this->next_no_whitespace() === self::TOK_EQUALS) {
-				if ($this->next_no_whitespace() === self::TOK_STRING) {
+			if ($this->next_no_whitespace() === TOK_EQUALS) {
+				if ($this->next_no_whitespace() === TOK_STRING) {
 					$val = $this->getTokenString(1, -1);
 				} else {
 					if (!isset($stop)) {
@@ -496,8 +530,8 @@ class HTML_Parser_Base extends Tokenizer_Base {
 				return false;
 			}
 		}
-		if ($this->token !== self::TOK_TAG_CLOSE) {
-			if ($this->token === self::TOK_SLASH_FORWARD) {
+		if ($this->token !== TOK_TAG_CLOSE) {
+			if ($this->token === TOK_SLASH_FORWARD) {
 				$this->status['self_close'] = true;
 				$this->next();
 			} elseif ((($this->status['tag_name'][0] === '?') && ($this->doc[$this->pos] === '?')) || (($this->status['tag_name'][0] === '%') && ($this->doc[$this->pos] === '%'))) {
@@ -506,13 +540,13 @@ class HTML_Parser_Base extends Tokenizer_Base {
 				if (isset($this->char_map[$this->doc[$this->pos]]) && (!is_string($this->char_map[$this->doc[$this->pos]]))) {
 					$this->token = $this->char_map[$this->doc[$this->pos]];
 				} else {
-					$this->token = self::TOK_UNKNOWN;
+					$this->token = TOK_UNKNOWN;
 				}
 			}
 		}
-		if ($this->token !== self::TOK_TAG_CLOSE) {
+		if ($this->token !== TOK_TAG_CLOSE) {
 			$this->addError('Expected ">", but found "'.$this->getTokenString().'"');
-			if ($this->next_pos('>', false) !== self::TOK_UNKNOWN) {
+			if ($this->next_pos('>', false) !== TOK_UNKNOWN) {
 				$this->addError('No ">" tag found for "'.$this->status['tag_name'].'" tag');
 				return false;
 			}
@@ -551,7 +585,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 		} else {
 			$this->status['closing_tag'] = false;
 		}
-		if ($this->next() !== self::TOK_IDENTIFIER) {
+		if ($this->next() !== TOK_IDENTIFIER) {
 			$this->addError('Tagname expected');
 				$this->status['last_pos'] = $start - 1;
 				return true;
@@ -570,12 +604,12 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	function parse_all() {
 		$this->errors = array();
 		$this->status['last_pos'] = $this->pos;
-		if (($this->token === self::TOK_TAG_OPEN) || ($this->next_pos('<', false) === self::TOK_UNKNOWN)) {
+		if (($this->token === TOK_TAG_OPEN) || ($this->next_pos('<', false) === TOK_UNKNOWN)) {
 			do {
 				if (!$this->parse_tag()) {
 					return false;
 				}
-			} while ($this->next_pos('<') !== self::TOK_NULL);
+			} while ($this->next_pos('<') !== TOK_NULL);
 		}
 		$this->pos = $this->size - 1;
 		$this->parse_text();
@@ -613,6 +647,7 @@ class HTML_Parser extends HTML_Parser_Base {
 		$this->root =& $root;
 		parent::__construct($doc, $pos);
 	}
+	function HTML_Parser($doc = '', $pos = 0, $root = null) {return $this->__construct($doc, $pos, $root);}
 	function __destruct() {
 		$this->root = null;
 	}
@@ -625,7 +660,7 @@ class HTML_Parser extends HTML_Parser_Base {
 	function select($query = '*', $index = false, $recursive = true, $check_self = false) {
 		return $this->root->select($query, $index, $recursive, $check_self);
 	}
-	protected function parse_hierarchy($self_close = null) {
+	function parse_hierarchy($self_close = null) {
 		if ($self_close === null) {
 			$this->status['self_close'] = ($self_close = isset($this->tags_selfclose[strtolower($this->status['tag_name'])]));
 		}
@@ -790,7 +825,7 @@ class HTML_Parser_HTML5 extends HTML_Parser {
 		'th'			=> array('td' => true, 'th' => true),
 		'body'			=> array('head' => true)
 	);
-	protected function parse_hierarchy($self_close = null) {
+	function parse_hierarchy($self_close = null) {
 		$tag_curr = strtolower($this->status['tag_name']);
 		if ($self_close === null) {
 			$this->status['self_close'] = ($self_close = isset($this->tags_selfclose[$tag_curr]));
@@ -808,14 +843,7 @@ class HTML_Parser_HTML5 extends HTML_Parser {
 
 //START gan_node_html.php
 class HTML_Node {
-	const NODE_ELEMENT = 0;
-	const NODE_TEXT = 1;
-	const NODE_COMMENT = 2;
-	const NODE_CONDITIONAL = 3;
-	const NODE_CDATA = 4;
-	const NODE_DOCTYPE = 5;
-	const NODE_XML = 6;
-	const NODE_ASP = 7;
+	var $NODE_TYPE = NODE_ELEMENT;
 	var $selectClass = 'HTML_Selector';
 	var $parserClass = 'HTML_Parser_HTML5';
 	var $childClass = __CLASS__;
@@ -875,6 +903,7 @@ class HTML_Node {
 			$this->attributes = $tag['attributes'];
 		}
 	}
+	function HTML_Node($tag, $parent) {return $this->__construct($tag, $parent);}
 	function __destruct() {
 		$this->delete();
 	}
@@ -899,14 +928,14 @@ class HTML_Node {
 	 function dumpLocation() {
 		return (($this->parent) ? (($p = $this->parent->dumpLocation()) ? $p.' > ' : '').$this->tag.'('.$this->typeIndex().')' : '');
 	 }
-	protected function toString_attributes() {
+	function toString_attributes() {
 		$s = '';
 		foreach($this->attributes as $a => $v) {
 			$s .= ' '.$a.(((!$this->attribute_shorttag) || ($this->attributes[$a] !== $a)) ? '="'.htmlspecialchars($this->attributes[$a], ENT_QUOTES, '', false).'"' : '');
 		}
 		return $s;
 	}
-	protected function toString_content($attributes = true, $recursive = true, $content_only = false) {
+	function toString_content($attributes = true, $recursive = true, $content_only = false) {
 		$s = '';
 		foreach($this->children as $c) {
 			$s .= $c->toString($attributes, $recursive, $content_only);
@@ -1287,7 +1316,7 @@ class HTML_Node {
 	function attributeCount() {
 		return count($this->attributes);
 	}
-	protected function findAttribute($attr, $compare = 'total', $case_sensitive = false) {
+	function findAttribute($attr, $compare = 'total', $case_sensitive = false) {
 		if (is_int($attr)) {
 			if ($attr < 0) {
 				$attr += count($this->attributes);
@@ -1486,7 +1515,7 @@ class HTML_Node {
 		}
 		return $res;
 	}
-	protected function match_tags($tags) {
+	function match_tags($tags) {
 		$res = false;
 		foreach($tags as $tag => $match) {
 			if (!is_array($match)) {
@@ -1532,7 +1561,7 @@ class HTML_Node {
 		}
 		return $res;
 	}
-	protected function match_attributes($attributes) {
+	function match_attributes($attributes) {
 		$res = false;
 		foreach($attributes as $attribute => $match) {
 			if (!is_array($match)) {
@@ -1627,7 +1656,7 @@ class HTML_Node {
 		}
 		return $res;
 	}
-	protected function match_filters($conditions, $custom_filters = array()) {
+	function match_filters($conditions, $custom_filters = array()) {
 		foreach($conditions as &$c) {
 			$c['filter'] = strtolower($c['filter']);
 			if (isset($this->filter_map[$c['filter']])) {
@@ -1751,145 +1780,150 @@ CALLBACK;
 			return $res;
 		}
 	}
-	protected function filter_root() {
+	function filter_root() {
 		return (strtolower($this->tag) === 'html');
 	}
-	protected function filter_nchild($n) {
+	function filter_nchild($n) {
 		return ($this->index(false) === (int) $n);
 	}
-	protected function filter_gt($n) {
+	function filter_gt($n) {
 		return ($this->index(false) > (int) $n);
 	}
-	protected function filter_lt($n) {
+	function filter_lt($n) {
 		return ($this->index(false) < (int) $n);
 	}
-	protected function filter_nlastchild($n) {
+	function filter_nlastchild($n) {
 		if ($this->parent === null) {
 			return false;
 		} else {
 			return ($this->parent->childCount(true) - 1 - $this->index(false) === (int) $n);
 		}
 	}
-	protected function filter_ntype($n) {
+	function filter_ntype($n) {
 		return ($this->typeIndex() === (int) $n);
 	}
-	protected function filter_nlastype($n) {
+	function filter_nlastype($n) {
 		if ($this->parent === null) {
 			return false;
 		} else {
 			return (count($this->parent->getChildrenByTag($this->tag, 'total', false)) - 1 - $this->typeIndex() === (int) $n);
 		}
 	}
-	protected function filter_odd() {
+	function filter_odd() {
 		return (($this->index(false) & 1) === 1);
 	}
-	protected function filter_even() {
+	function filter_even() {
 		return (($this->index(false) & 1) === 0);
 	}
-	protected function filter_every($n) {
+	function filter_every($n) {
 		return (($this->index(false) % (int) $n) === 0);
 	}
-	protected function filter_first() {
+	function filter_first() {
 		return ($this->index(false) === 0);
 	}
-	protected function filter_last() {
+	function filter_last() {
 		if ($this->parent === null) {
 			return false;
 		} else {
 			return ($this->parent->childCount(true) - 1 === $this->index(false));
 		}
 	}
-	protected function filter_firsttype() {
+	function filter_firsttype() {
 		return ($this->typeIndex() === 0);
 	}
-	protected function filter_lasttype() {
+	function filter_lasttype() {
 		if ($this->parent === null) {
 			return false;
 		} else {
 			return (count($this->parent->getChildrenByTag($this->tag, 'total', false)) - 1 === $this->typeIndex());
 		}
 	}
-	protected function filter_onlychild() {
+	function filter_onlychild() {
 		if ($this->parent === null) {
 			return false;
 		} else {
 			return ($this->parent->childCount(true) === 1);
 		}
 	}
-	protected function filter_onlytype() {
+	function filter_onlytype() {
 		if ($this->parent === null) {
 			return false;
 		} else {
 			return (count($this->parent->getChildrenByTag($this->tag, 'total', false)) === 1);
 		}
 	}
-	protected function filter_empty() {
+	function filter_empty() {
 		return ($this->childCount() === 0);
 	}
-	protected function filter_notempty() {
+	function filter_notempty() {
 		return ($this->childCount() !== 0);
 	}
-	protected function filter_hastext() {
+	function filter_hastext() {
 		return ($this->getPlainText() !== '');
 	}
-	protected function filter_notext() {
+	function filter_notext() {
 		return ($this->getPlainText() === '');
 	}
-	protected function filter_lang($lang) {
+	function filter_lang($lang) {
 		return ($this->lang === $lang);
 	}
-	protected function filter_containts($text) {
+	function filter_containts($text) {
 		return (strpos($this->getPlainText(), $text) !== false);
 	}
-	protected function filter_has($selector) {
+	function filter_has($selector) {
 		$s = $this->select((string) $selector, false);
 		return (is_array($s) && (count($s) > 0));
 	}
-	protected function filter_not($selector) {
+	function filter_not($selector) {
 		$s = $this->select((string) $selector, false, true, true);
 		return ((!is_array($s)) || (array_search($this, $s, true) === false));
 	}
-	protected function filter_element() {
+	function filter_element() {
 		return true;
 	}
-	protected function filter_text() {
+	function filter_text() {
 		return false;
 	}
-	protected function filter_comment() {
+	function filter_comment() {
 		return false;
 	}
 }
 class HTML_NODE_TEXT extends HTML_Node {
+	var $NODE_TYPE = NODE_TEXT;
 	var $tag = '~text~';
 	var $text = '';
 	function __construct($parent, $text = '') {
 		$this->parent = $parent;
 		$this->text = $text;
 	}
+	function HTML_NODE_TEXT($parent, $text = '') {return $this->__construct($parent, $text);}
 	function isText() {return true;}
 	function isTextOrComment() {return true;}
-	protected function filter_element() {return false;}
-	protected function filter_text() {return true;}
+	function filter_element() {return false;}
+	function filter_text() {return true;}
 	function toString_attributes() {return '';}
 	function toString_content() {return $this->text;}
 	function toString() {return $this->text;}
 }
 class HTML_NODE_COMMENT extends HTML_Node {
+	var $NODE_TYPE = NODE_COMMENT;
 	var $tag = '~comment~';
 	var $text = '';
 	function __construct($parent, $text = '') {
 		$this->parent = $parent;
 		$this->text = $text;
 	}
+	function HTML_NODE_COMMENT($parent, $text = '') {return $this->__construct($parent, $text);}
 	function isComment() {return true;}
 	function isTextOrComment() {return true;}	
-	protected function filter_element() {return false;}
-	protected function filter_comment() {return true;}
+	function filter_element() {return false;}
+	function filter_comment() {return true;}
 	function toString_attributes() {return '';}
 	function toString_content() {return $this->text;}
 	function toString() {return '<!--'.$this->text.'-->';}
 }
 class HTML_NODE_CONDITIONAL extends HTML_Node {
+	var $NODE_TYPE = NODE_CONDITIONAL;
 	var $tag = '~conditional~';
 	var $condition = '';
 	function __construct($parent, $condition = '', $hidden = true) {
@@ -1897,7 +1931,8 @@ class HTML_NODE_CONDITIONAL extends HTML_Node {
 		$this->hidden = $hidden;
 		$this->condition = $condition;
 	}
-	protected function filter_element() {return false;}
+	function HTML_NODE_CONDITIONAL($parent, $condition = '', $hidden = true) {return $this->__construct($parent, $condition, $hidden);}
+	function filter_element() {return false;}
 	function toString_attributes() {return '';}
 	function toString($attributes = true, $recursive = true, $content_only = false) {
 		if ($content_only) {
@@ -1915,25 +1950,29 @@ class HTML_NODE_CONDITIONAL extends HTML_Node {
 	}
 }
 class HTML_NODE_CDATA extends HTML_Node {
+	var $NODE_TYPE = NODE_CDATA;
 	var $tag = '~cdata~';
 	var $text = '';
 	function __construct($parent, $text = '') {
 		$this->parent = $parent;
 		$this->text = $text;
 	}
-	protected function filter_element() {return false;}
+	function HTML_NODE_CDATA($parent, $text = '') {return $this->__construct($parent, $text);}
+	function filter_element() {return false;}
 	function toString_attributes() {return '';}
 	function toString_content() {return $this->text;}
 	function toString() {return '<![CDATA['.$this->text.']]>';}
 }
 class HTML_NODE_DOCTYPE extends HTML_Node {
+	var $NODE_TYPE = NODE_DOCTYPE;
 	var $tag = '!DOCTYPE';
 	var $dtd = '';
 	function __construct($parent, $dtd = '') {
 		$this->parent = $parent;
 		$this->dtd = $dtd;
 	}
-	protected function filter_element() {return false;}
+	function HTML_NODE_DOCTYPE($parent, $dtd = '') {return $this->__construct($parent, $dtd);}
+	function filter_element() {return false;}
 	function toString_attributes() {return '';}
 	function toString_content() {return $this->text;}
 	function toString() {return '<'.$this->tag.' '.$this->dtd.'>';}
@@ -1952,7 +1991,8 @@ class HTML_NODE_EMBEDDED extends HTML_Node {
 		$this->attributes = $attributes;
 		$this->self_close_str = $tag_char;
 	}
-	protected function filter_element() {return false;}
+	function HTML_NODE_EMBEDDED($parent, $tag_char = '', $tag = '', $text = '', $attributes = array()) {return $this->__construct($parent, $tag_char, $tag, $text, $attributes);}
+	function filter_element() {return false;}
 	function toString($attributes = true, $recursive = true, $content_only = false) {
 		$s = '<'.$this->tag;
 		if ($attributes) {
@@ -1963,127 +2003,106 @@ class HTML_NODE_EMBEDDED extends HTML_Node {
 	}
 }
 class HTML_NODE_XML extends HTML_NODE_EMBEDDED {
+	var $NODE_TYPE = NODE_XML;
 	function __construct($parent, $tag = 'xml', $text = '', $attributes = array()) {
 		return parent::__construct($parent, '?', $tag, $text, $attributes);
 	}
+	function HTML_NODE_XML($parent, $tag = 'xml', $text = '', $attributes = array()) {return $this->__construct($parent, $tag, $text, $attributes);}
 }
 class HTML_NODE_ASP extends HTML_NODE_EMBEDDED {
+	var $NODE_TYPE = NODE_ASP;
 	function __construct($parent, $tag = '', $text = '', $attributes = array()) {
 		return parent::__construct($parent, '%', $tag, $text, $attributes);
 	}
+	function HTML_NODE_ASP($parent, $tag = '', $text = '', $attributes = array()) {return $this->__construct($parent, $tag, $text, $attributes);}
 }
 //END gan_node_html.php
 
 //START gan_selector_html.php
 class Tokenizer_CSSQuery extends Tokenizer_Base {
-	const TOK_BRACKET_OPEN = 100;
-	const TOK_BRACKET_CLOSE = 101;
-	const TOK_BRACE_OPEN = 102;
-	const TOK_BRACE_CLOSE = 103;
-	const TOK_STRING = 104;
-	const TOK_COLON = 105;
-	const TOK_COMMA = 106;
-	const TOK_NOT = 107;
-	const TOK_ALL = 108;
-	const TOK_PIPE = 109;
-	const TOK_PLUS = 110;
-	const TOK_SIBLING = 111;
-	const TOK_CLASS = 112;
-	const TOK_ID = 113;
-	const TOK_CHILD = 114;
-	const TOK_COMPARE_PREFIX = 115;
-	const TOK_COMPARE_CONTAINS = 116;
-	const TOK_COMPARE_CONTAINS_WORD = 117;
-	const TOK_COMPARE_ENDS = 118;
-	const TOK_COMPARE_EQUALS = 119;
-	const TOK_COMPARE_NOT_EQUAL = 120;
-	const TOK_COMPARE_BIGGER_THAN = 121;
-	const TOK_COMPARE_SMALLER_THAN = 122;
-	const TOK_COMPARE_REGEX = 123;
-	const TOK_COMPARE_STARTS = 124;
 	var $identifiers = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_-?';
 	var $custom_char_map = array(
-		'.' => self::TOK_CLASS,
-		'#' => self::TOK_ID,
-		',' => self::TOK_COMMA,
+		'.' => TOK_CLASS,
+		'#' => TOK_ID,
+		',' => TOK_COMMA,
 		'>' => 'parse_gt',
-		'+' => self::TOK_PLUS,
+		'+' => TOK_PLUS,
 		'~' => 'parse_sibling',
 		'|' => 'parse_pipe',
 		'*' => 'parse_star',
 		'$' => 'parse_compare',
-		'=' => self::TOK_COMPARE_EQUALS,
+		'=' => TOK_COMPARE_EQUALS,
 		'!' => 'parse_not',
 		'%' => 'parse_compare',
 		'^' => 'parse_compare',
 		'<' => 'parse_compare',
 		'"' => 'parse_string',
 		"'" => 'parse_string',
-		'(' => self::TOK_BRACE_OPEN,
-		')' => self::TOK_BRACE_CLOSE,
-		'[' => self::TOK_BRACKET_OPEN,
-		']' => self::TOK_BRACKET_CLOSE,
-		':' => self::TOK_COLON
+		'(' => TOK_BRACE_OPEN,
+		')' => TOK_BRACE_CLOSE,
+		'[' => TOK_BRACKET_OPEN,
+		']' => TOK_BRACKET_CLOSE,
+		':' => TOK_COLON
 	);
-	protected function parse_gt() {
+	function parse_gt() {
 		if ($this->doc[$this->pos + 1] === '=') {
 			++$this->pos;
-			return ($this->token = self::TOK_COMPARE_BIGGER_THAN);
+			return ($this->token = TOK_COMPARE_BIGGER_THAN);
 		} else {
-			return ($this->token = self::TOK_CHILD);
+			return ($this->token = TOK_CHILD);
 		}
 	}
-	protected function parse_sibling() {
+	function parse_sibling() {
 		if ($this->doc[$this->pos + 1] === '=') {
 			++$this->pos;
-			return ($this->token = self::TOK_COMPARE_CONTAINS_WORD);
+			return ($this->token = TOK_COMPARE_CONTAINS_WORD);
 		} else {
-			return ($this->token = self::TOK_SIBLING);
+			return ($this->token = TOK_SIBLING);
 		}
 	}
-	protected function parse_pipe() {
+	function parse_pipe() {
 		if ($this->doc[$this->pos + 1] === '=') {
 			++$this->pos;
-			return ($this->token = self::TOK_COMPARE_PREFIX);
+			return ($this->token = TOK_COMPARE_PREFIX);
 		} else {
-			return ($this->token = self::TOK_PIPE);
+			return ($this->token = TOK_PIPE);
 		}
 	}
-	protected function parse_star() {
+	function parse_star() {
 		if ($this->doc[$this->pos + 1] === '=') {
 			++$this->pos;
-			return ($this->token = self::TOK_COMPARE_CONTAINS);
+			return ($this->token = TOK_COMPARE_CONTAINS);
 		} else {
-			return ($this->token = self::TOK_ALL);
+			return ($this->token = TOK_ALL);
 		}
 	}
-	protected function parse_not() {
+	function parse_not() {
 		if ($this->doc[$this->pos + 1] === '=') {
 			++$this->pos;
-			return ($this->token = self::TOK_COMPARE_NOT_EQUAL);
+			return ($this->token = TOK_COMPARE_NOT_EQUAL);
 		} else {
-			return ($this->token = self::TOK_NOT);
+			return ($this->token = TOK_NOT);
 		}
 	}
-	protected function parse_compare() {
+	function parse_compare() {
 		if ($this->doc[$this->pos + 1] === '=') {
 			switch($this->doc[$this->pos++]) {
 				case '$':
-					return ($this->token = self::TOK_COMPARE_ENDS);
+					return ($this->token = TOK_COMPARE_ENDS);
 				case '%':
-					return ($this->token = self::TOK_COMPARE_REGEX);
+					return ($this->token = TOK_COMPARE_REGEX);
 				case '^':
-					return ($this->token = self::TOK_COMPARE_STARTS);
+					return ($this->token = TOK_COMPARE_STARTS);
 				case '<':
-					return ($this->token = self::TOK_COMPARE_SMALLER_THAN);
+					return ($this->token = TOK_COMPARE_SMALLER_THAN);
 			}
 		}
 		return false;
 	}
-	protected function parse_string() {
+	function parse_string() {
 		$char = $this->doc[$this->pos];
 		while (true) {
-			if ($this->next_search($char.'\\', false) !== self::TOK_NULL) {
+			if ($this->next_search($char.'\\', false) !== TOK_NULL) {
 				if($this->doc[$this->pos] === $char) {
 					break;
 				} else {
@@ -2094,7 +2113,7 @@ class Tokenizer_CSSQuery extends Tokenizer_Base {
 				break;
 			}
 		}
-		return ($this->token = self::TOK_STRING);
+		return ($this->token = TOK_STRING);
 	}
 }
 class HTML_Selector {
@@ -2115,6 +2134,7 @@ class HTML_Selector {
 		$this->search_recursive = $search_recursive;
 		$this->select($query);
 	}
+	function HTML_Selector($root, $query = '*', $search_root = false, $search_recursive = true, $parser = null) {return $this->__construct($root, $query, $search_root, $search_recursive, $parser);}
 	function __toString() {
 		return $this->query;
 	}
@@ -2126,7 +2146,7 @@ class HTML_Selector {
 		$this->query = $query;
 		return (($this->parse()) ? $this->result : false);
 	}
-	protected function error($error) {
+	function error($error) {
 		$error = htmlentities(str_replace(
 			array('%tok%', '%pos%'),
 			array($this->parser->getTokenString(), (int) $this->parser->getPos()),
@@ -2134,31 +2154,31 @@ class HTML_Selector {
 		));
 		trigger_error($error);
 	}
-	protected function parse_getIdentifier($do_error = true) {
+	function parse_getIdentifier($do_error = true) {
 		$p =& $this->parser;
 		$tok = $p->token;
-		if ($tok === Tokenizer_CSSQuery::TOK_IDENTIFIER) {
+		if ($tok === TOK_IDENTIFIER) {
 			return $p->getTokenString();
-		} elseif($tok === Tokenizer_CSSQuery::TOK_STRING) {
+		} elseif($tok === TOK_STRING) {
 			return str_replace(array('\\\'', '\\"', '\\\\'), array('\'', '"', '\\'), $p->getTokenString(1, -1));
 		} elseif ($do_error) {
 			$this->error('Expected identifier at %pos%!');
 		}
 		return false;
 	}
-	protected function parse_conditions() {
+	function parse_conditions() {
 		$p =& $this->parser;
 		$tok = $p->token;
-		if ($tok === Tokenizer_CSSQuery::TOK_NULL) {
+		if ($tok === TOK_NULL) {
 			$this->error('Invalid search pattern(1): Empty string!');
 			return false;
 		}
 		$conditions_all = array();
-		while ($tok !== Tokenizer_CSSQuery::TOK_NULL) {
+		while ($tok !== TOK_NULL) {
 			$conditions = array('tags' => array(), 'attributes' => array());
-			if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+			if ($tok === TOK_ALL) {
 				$tok = $p->next();
-				if (($tok === Tokenizer_CSSQuery::TOK_PIPE) && ($tok = $p->next()) && ($tok !== Tokenizer_CSSQuery::TOK_ALL)) {
+				if (($tok === TOK_PIPE) && ($tok = $p->next()) && ($tok !== TOK_ALL)) {
 					if (($tag = $this->parse_getIdentifier()) === false) {
 						return false;
 					}
@@ -2172,13 +2192,13 @@ class HTML_Selector {
 						'tag' => '',
 						'match' => false
 					);
-					if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+					if ($tok === TOK_ALL) {
 						$tok = $p->next_no_whitespace();
 					}
 				}
-			} elseif ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+			} elseif ($tok === TOK_PIPE) {
 				$tok = $p->next();
-				if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+				if ($tok === TOK_ALL) {
 					$conditions['tags'][] = array(
 						'tag' => '',
 						'compare' => 'namespace',
@@ -2192,28 +2212,28 @@ class HTML_Selector {
 					return false;
 				}
 				$tok = $p->next_no_whitespace();
-			} elseif ($tok === Tokenizer_CSSQuery::TOK_BRACE_OPEN) {
+			} elseif ($tok === TOK_BRACE_OPEN) {
 				$tok = $p->next_no_whitespace();
 				$last_mode = 'or';
 				while (true) {
 					$match = true;
 					$compare = 'total';
-					if ($tok === Tokenizer_CSSQuery::TOK_NOT) {
+					if ($tok === TOK_NOT) {
 						$match = false;
 						$tok = $p->next_no_whitespace();
 					}
-					if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+					if ($tok === TOK_ALL) {
 						$tok = $p->next();
-						if ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+						if ($tok === TOK_PIPE) {
 							$this->next();
 							$compare = 'name';
 							if (($tag = $this->parse_getIdentifier()) === false) {
 								return false;
 							}
 						}
-					} elseif ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+					} elseif ($tok === TOK_PIPE) {
 						$tok = $p->next();
-						if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+						if ($tok === TOK_ALL) {
 							$tag = '';
 							$compare = 'namespace';
 						} elseif (($tag = $this->parse_getIdentifier()) === false) {
@@ -2225,9 +2245,9 @@ class HTML_Selector {
 							return false;
 						}
 						$tok = $p->next();
-						if ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+						if ($tok === TOK_PIPE) {
 							$tok = $p->next();
-							if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+							if ($tok === TOK_ALL) {
 								$compare = 'namespace';
 							} elseif (($tag_name = $this->parse_getIdentifier()) !== false) {
 								$tag = $tag.':'.$tag_name;
@@ -2237,7 +2257,7 @@ class HTML_Selector {
 							$tok = $p->next_no_whitespace();
 						}
 					}
-					if ($tok === Tokenizer_CSSQuery::TOK_WHITESPACE) {
+					if ($tok === TOK_WHITESPACE) {
 						$tok = $p->next_no_whitespace();
 					}
 					$conditions['tags'][] = array(
@@ -2247,15 +2267,15 @@ class HTML_Selector {
 						'compare' => $compare
 					);
 					switch($tok) {
-						case Tokenizer_CSSQuery::TOK_COMMA:
+						case TOK_COMMA:
 							$tok = $p->next_no_whitespace();
 							$last_mode = 'or';
 							continue 2;
-						case Tokenizer_CSSQuery::TOK_PLUS:
+						case TOK_PLUS:
 							$tok = $p->next_no_whitespace();
 							$last_mode = 'and';
 							continue 2;
-						case Tokenizer_CSSQuery::TOK_BRACE_CLOSE:
+						case TOK_BRACE_CLOSE:
 							$tok = $p->next();
 							break 2;
 						default:
@@ -2265,9 +2285,9 @@ class HTML_Selector {
 				}
 			} elseif (($tag = $this->parse_getIdentifier(false)) !== false) {
 				$tok = $p->next();
-				if ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+				if ($tok === TOK_PIPE) {
 					$tok = $p->next();
-					if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+					if ($tok === TOK_ALL) {
 						$conditions['tags'][] = array(
 							'tag' => $tag,
 							'compare' => 'namespace'
@@ -2292,7 +2312,7 @@ class HTML_Selector {
 				unset($conditions['tags']);
 			}
 			$last_mode = 'or';
-			if ($tok === Tokenizer_CSSQuery::TOK_CLASS) {
+			if ($tok === TOK_CLASS) {
 				$p->next();
 				if (($class = $this->parse_getIdentifier()) === false) {
 					return false;
@@ -2306,7 +2326,7 @@ class HTML_Selector {
 				$last_mode = 'and';
 				$tok = $p->next();
 			}
-			if ($tok === Tokenizer_CSSQuery::TOK_ID) {
+			if ($tok === TOK_ID) {
 				$p->next();
 				if (($id = $this->parse_getIdentifier()) === false) {
 					return false;
@@ -2320,18 +2340,18 @@ class HTML_Selector {
 				$last_mode = 'and';
 				$tok = $p->next();
 			}
-			if ($tok === Tokenizer_CSSQuery::TOK_BRACKET_OPEN) {
+			if ($tok === TOK_BRACKET_OPEN) {
 				$tok = $p->next_no_whitespace();
 				while (true) {
 					$match = true;
 					$compare = 'total';
-					if ($tok === Tokenizer_CSSQuery::TOK_NOT) {
+					if ($tok === TOK_NOT) {
 						$match = false;
 						$tok = $p->next_no_whitespace();
 					}
-					if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
+					if ($tok === TOK_ALL) {
 						$tok = $p->next();
-						if ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+						if ($tok === TOK_PIPE) {
 							$tok = $p->next();
 							if (($attribute = $this->parse_getIdentifier()) === false) {
 								return false;
@@ -2342,7 +2362,7 @@ class HTML_Selector {
 							$this->error('Expected pipe at pos %pos%!');
 							return false;
 						}
-					} elseif ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+					} elseif ($tok === TOK_PIPE) {
 						$tok = $p->next();
 						if (($tag = $this->parse_getIdentifier()) === false) {
 							return false;
@@ -2350,7 +2370,7 @@ class HTML_Selector {
 						$tok = $p->next_no_whitespace();
 					} elseif (($attribute = $this->parse_getIdentifier()) !== false) {
 						$tok = $p->next();
-						if ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
+						if ($tok === TOK_PIPE) {
 							$tok = $p->next();
 							if (($attribute_name = $this->parse_getIdentifier()) !== false) {
 								$attribute = $attribute.':'.$attribute_name;
@@ -2362,23 +2382,23 @@ class HTML_Selector {
 					} else {
 						return false;
 					}
-					if ($tok === Tokenizer_CSSQuery::TOK_WHITESPACE) {
+					if ($tok === TOK_WHITESPACE) {
 						$tok = $p->next_no_whitespace();
 					}
 					$operator_value = '';
 					$val = '';
 					switch($tok) {
-						case Tokenizer_CSSQuery::TOK_COMPARE_PREFIX:
-						case Tokenizer_CSSQuery::TOK_COMPARE_CONTAINS:
-						case Tokenizer_CSSQuery::TOK_COMPARE_CONTAINS_WORD:
-						case Tokenizer_CSSQuery::TOK_COMPARE_ENDS:
-						case Tokenizer_CSSQuery::TOK_COMPARE_EQUALS:
-						case Tokenizer_CSSQuery::TOK_COMPARE_NOT_EQUAL:
-						case Tokenizer_CSSQuery::TOK_COMPARE_REGEX:
-						case Tokenizer_CSSQuery::TOK_COMPARE_STARTS:
-						case Tokenizer_CSSQuery::TOK_COMPARE_BIGGER_THAN:
-						case Tokenizer_CSSQuery::TOK_COMPARE_SMALLER_THAN:
-							$operator_value = $p->getTokenString(($tok === Tokenizer_CSSQuery::TOK_COMPARE_EQUALS) ? 0 : -1);
+						case TOK_COMPARE_PREFIX:
+						case TOK_COMPARE_CONTAINS:
+						case TOK_COMPARE_CONTAINS_WORD:
+						case TOK_COMPARE_ENDS:
+						case TOK_COMPARE_EQUALS:
+						case TOK_COMPARE_NOT_EQUAL:
+						case TOK_COMPARE_REGEX:
+						case TOK_COMPARE_STARTS:
+						case TOK_COMPARE_BIGGER_THAN:
+						case TOK_COMPARE_SMALLER_THAN:
+							$operator_value = $p->getTokenString(($tok === TOK_COMPARE_EQUALS) ? 0 : -1);
 							$p->next_no_whitespace();
 							if (($val = $this->parse_getIdentifier()) === false) {
 								return false;
@@ -2404,15 +2424,15 @@ class HTML_Selector {
 						);
 					}
 					switch($tok) {
-						case Tokenizer_CSSQuery::TOK_COMMA:
+						case TOK_COMMA:
 							$tok = $p->next_no_whitespace();
 							$last_mode = 'or';
 							continue 2;
-						case Tokenizer_CSSQuery::TOK_PLUS:
+						case TOK_PLUS:
 							$tok = $p->next_no_whitespace();
 							$last_mode = 'and';
 							continue 2;
-						case Tokenizer_CSSQuery::TOK_BRACKET_CLOSE:
+						case TOK_BRACKET_CLOSE:
 							$tok = $p->next();
 							break 2;
 						default:
@@ -2424,7 +2444,7 @@ class HTML_Selector {
 			if (count($conditions['attributes']) < 1) {
 				unset($conditions['attributes']);
 			}
-			while($tok === Tokenizer_CSSQuery::TOK_COLON) {
+			while($tok === TOK_COLON) {
 				if (count($conditions) < 1) {
 					$conditions['tags'] = array(array(
 						'tag' => '',
@@ -2435,15 +2455,15 @@ class HTML_Selector {
 				if (($filter = $this->parse_getIdentifier()) === false) {
 					return false;
 				}
-				if (($tok = $p->next()) === Tokenizer_CSSQuery::TOK_BRACE_OPEN) {
+				if (($tok = $p->next()) === TOK_BRACE_OPEN) {
 					$start = $p->pos;
 					$count = 1;
-					while ((($tok = $p->next()) !== Tokenizer_CSSQuery::TOK_NULL) && !(($tok === Tokenizer_CSSQuery::TOK_BRACE_CLOSE) && (--$count === 0))) {
-						if ($tok === Tokenizer_CSSQuery::TOK_BRACE_OPEN) {
+					while ((($tok = $p->next()) !== TOK_NULL) && !(($tok === TOK_BRACE_CLOSE) && (--$count === 0))) {
+						if ($tok === TOK_BRACE_OPEN) {
 							++$count;
 						}
 					}
-					if ($tok !== Tokenizer_CSSQuery::TOK_BRACE_CLOSE) {
+					if ($tok !== TOK_BRACE_CLOSE) {
 						$this->error('Expected closing brace at pos %pos%!');
 						return false;
 					}
@@ -2460,10 +2480,10 @@ class HTML_Selector {
 				return false;
 			}
 			$conditions_all[] = $conditions;
-			if ($tok === Tokenizer_CSSQuery::TOK_WHITESPACE) {
+			if ($tok === TOK_WHITESPACE) {
 				$tok = $p->next_no_whitespace();
 			}
-			if ($tok === Tokenizer_CSSQuery::TOK_COMMA) {
+			if ($tok === TOK_COMMA) {
 				$tok = $p->next_no_whitespace();
 				continue;
 			} else {
@@ -2472,7 +2492,7 @@ class HTML_Selector {
 		}
 		return $conditions_all;
 	}
-	protected function parse_callback($conditions, $recursive = true, $check_root = false) {
+	function parse_callback($conditions, $recursive = true, $check_root = false) {
 		$c = var_export($conditions, true);
 		$f = var_export($this->custom_filter_map, true);
 		$func =
@@ -2487,14 +2507,14 @@ func;
 			$check_root
 		));
 	}
-	protected function parse_single($recursive = true) {
+	function parse_single($recursive = true) {
 		if (($c = $this->parse_conditions()) === false) {
 			return false;
 		}
 		$this->parse_callback($c, $recursive, $this->search_root);
 		return true;
 	}
-	protected function parse_adjacent() {
+	function parse_adjacent() {
 		$tmp = $this->result;
 		$this->result = array();
 		if (($c = $this->parse_conditions()) === false) {
@@ -2509,7 +2529,7 @@ func;
 		}
 		return true;
 	}
-	protected function parse_result($parent = false, $recursive = true) {
+	function parse_result($parent = false, $recursive = true) {
 		$tmp = $this->result;
 		$tmp_res = array();
 		if (($c = $this->parse_conditions()) === false) {
@@ -2527,7 +2547,7 @@ func;
 		$this->result = $tmp_res;
 		return true;
 	}
-	protected function parse() {
+	function parse() {
 		$p =& $this->parser;
 		$p->setPos(0);
 		$this->result = array();
@@ -2536,37 +2556,37 @@ func;
 		}
 		while (count($this->result) > 0) {
 			switch($p->token) {
-				case Tokenizer_CSSQuery::TOK_CHILD:
+				case TOK_CHILD:
 					$this->parser->next_no_whitespace();
 					if (!$this->parse_result(false, 1)) {
 						return false;
 					}
 					break;
-				case Tokenizer_CSSQuery::TOK_SIBLING:
+				case TOK_SIBLING:
 					$this->parser->next_no_whitespace();
 					if (!$this->parse_result(true, 1)) {
 						return false;
 					}
 					break;
-				case Tokenizer_CSSQuery::TOK_PLUS:
+				case TOK_PLUS:
 					$this->parser->next_no_whitespace();
 					if (!$this->parse_adjacent()) {
 						return false;
 					}
 					break;
-				case Tokenizer_CSSQuery::TOK_ALL:
-				case Tokenizer_CSSQuery::TOK_IDENTIFIER:
-				case Tokenizer_CSSQuery::TOK_STRING:
-				case Tokenizer_CSSQuery::TOK_BRACE_OPEN:
-				case Tokenizer_CSSQuery::TOK_BRACKET_OPEN:
-				case Tokenizer_CSSQuery::TOK_ID:
-				case Tokenizer_CSSQuery::TOK_CLASS:
-				case Tokenizer_CSSQuery::TOK_COLON:
+				case TOK_ALL:
+				case TOK_IDENTIFIER:
+				case TOK_STRING:
+				case TOK_BRACE_OPEN:
+				case TOK_BRACKET_OPEN:
+				case TOK_ID:
+				case TOK_CLASS:
+				case TOK_COLON:
 					if (!$this->parse_result()) {
 						return false;
 					}
 					break;
-				case Tokenizer_CSSQuery::TOK_NULL:
+				case TOK_NULL:
 					break 2;
 				default:
 					$this->error('Invalid search pattern(3): No result modifier found!');
@@ -2645,10 +2665,11 @@ class HTML_Formatter {
 	function __construct($options = array()) {
 		$this->options = array_merge($this->options, $options);
 	}
+	function HTML_Formatter($options = array()) {return $this->__construct($options);}
 	function __invoke(&$node) {
 		return $this->format($node);
 	}
-	static function minify_html(&$root, $strip_comments = true, $recursive = true) {
+	function minify_html(&$root, $strip_comments = true, $recursive = true) {
 		if ($strip_comments) {
 			foreach($root->select(':comment', false, $recursive, true) as $c) {
 				$prev = $c->getSibling(-1);
@@ -2664,7 +2685,7 @@ class HTML_Formatter {
 			$c->text = preg_replace('`\s+`', ' ', $c->text);
 		}
 	}
-	static function minify_javascript(&$root, $indent_string = ' ', $wrap_comment = true, $recursive = true) {
+	function minify_javascript(&$root, $indent_string = ' ', $wrap_comment = true, $recursive = true) {
 		include_once('third party/jsminplus.php');
 		$errors = array();
 		foreach($root->select('script:not-empty > "~text~"', false, $recursive, true) as $c) {
@@ -2704,7 +2725,7 @@ class HTML_Formatter {
 	function format_html(&$root, $recursive = null) {
 		if ($recursive === null) {
 			$recursive = true;
-			self::minify_html($root);
+			$this->minify_html($root);
 		} elseif (is_int($recursive)) {
 			$recursive = (($recursive > 1) ? $recursive - 1 : false);
 		}
@@ -2808,7 +2829,7 @@ class HTML_Formatter {
 	function format(&$node) {
 		$this->errors = array();
 		if ($this->options['minify_script']) {
-			$a = self::minify_javascript($node, $this->indent_string, true, true);
+			$a = $this->minify_javascript($node, $this->indent_string, true, true);
 			if (is_array($a)) {
 				foreach($a as $error) {
 					$this->errors[] = $error[0]->getMessage().' >>> '.$error[1];
