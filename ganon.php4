@@ -796,7 +796,7 @@ class HTML_Parser extends HTML_Parser_Base {
 		}
 	}
 	function parse_all() {
-		$this->hierarchy = array($this->root);
+		$this->hierarchy = array(&$this->root);
 		return ((parent::parse_all()) ? $this->root : false);
 	}
 }
