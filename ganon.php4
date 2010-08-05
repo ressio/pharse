@@ -671,7 +671,8 @@ class HTML_Parser extends HTML_Parser_Base {
 				for ($count = count($c), $i = $count - 1; $i >= 0; $i--) {
 					if (strcasecmp($c[$i]->tag, $this->status['tag_name']) === 0) {
 						for($ii = $i + 1; $ii < $count; $ii++) {
-							$c[$i + 1]->changeParent($c[$i]);
+							$index = null; 
+							$c[$i + 1]->changeParent($c[$i], $index);
 						}
 						$c[$i]->self_close = false;
 						$found = true;
@@ -682,11 +683,14 @@ class HTML_Parser extends HTML_Parser_Base {
 					$this->addError('Closing tag "'.$this->status['tag_name'].'" which is not open');
 				}
 			} elseif ($this->status['tag_name'][0] === '?') {
-				$this->hierarchy[count($this->hierarchy) - 1]->addXML($this->status['tag_name'], '', $this->status['attributes']);
+				$index = null; 
+				$this->hierarchy[count($this->hierarchy) - 1]->addXML($this->status['tag_name'], '', $this->status['attributes'], $index);
 			} elseif ($this->status['tag_name'][0] === '%') {
-				$this->hierarchy[count($this->hierarchy) - 1]->addASP($this->status['tag_name'], '', $this->status['attributes']);
+				$index = null; 
+				$this->hierarchy[count($this->hierarchy) - 1]->addASP($this->status['tag_name'], '', $this->status['attributes'], $index);
 			} else {
-				$this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);;
+				$index = null; 
+				$this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
 			}
 		} elseif ($this->status['closing_tag']) {
 			$found = false;
@@ -706,63 +710,76 @@ class HTML_Parser extends HTML_Parser_Base {
 				$this->addError('Closing tag "'.$this->status['tag_name'].'" which is not open');
 			}
 		} else {
-			$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);	
+			$index = null; 
+			$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);	
 		}
 	}
 	function parse_cdata() {
 		if (!parent::parse_cdata()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addCDATA($this->status['cdata']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addCDATA($this->status['cdata'], $index);
 		return true;
 	}
 	function parse_comment() {
 		if (!parent::parse_comment()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addComment($this->status['comment']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addComment($this->status['comment'], $index);
 		return true;
 	}
 	function parse_conditional() {
 		if (!parent::parse_conditional()) {return false;}
 		if ($this->status['comment']) {
-			$e = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], true);
+			$index = null; 
+			$e = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], true, $index);
 			if ($this->status['text']) {
-				$e->addText($this->status['text']);
+				$index = null; 
+				$e->addText($this->status['text'], $index);
 			}
 		} else {
 			if ($this->status['closing_tag']) {
 				$this->parse_hierarchy(false);
 			} else {
-				$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], false);
+				$index = null; 
+				$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], false, $index);
 			}
 		}
 		return true;
 	}
 	function parse_doctype() {
 		if (!parent::parse_doctype()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addDoctype($this->status['dtd']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addDoctype($this->status['dtd'], $index);
 		return true;
 	}
 	function parse_php() {
 		if (!parent::parse_php()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text'], $index);
 		return true;
 	}
 	function parse_asp() {
 		if (!parent::parse_asp()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text'], $index);
 		return true;
 	}
 	function parse_script() {
 		if (!parent::parse_script()) {return false;}
-		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);
+		$index = null; 
+		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
 		if ($this->status['text']) {
-			$e->addText($this->status['text']);
+			$index = null; 
+			$e->addText($this->status['text'], $index);
 		}
 		return true;
 	}
 	function parse_style() {
 		if (!parent::parse_style()) {return false;}
-		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);
+		$index = null; 
+		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
 		if ($this->status['text']) {
-			$e->addText($this->status['text']);
+			$index = null; 
+			$e->addText($this->status['text'], $index);
 		}
 		return true;
 	}
@@ -774,7 +791,8 @@ class HTML_Parser extends HTML_Parser_Base {
 	function parse_text() {
 		parent::parse_text();
 		if ($this->status['text']) {
-			$this->hierarchy[count($this->hierarchy) - 1]->addText($this->status['text']);
+			$index = null; 
+			$this->hierarchy[count($this->hierarchy) - 1]->addText($this->status['text'], $index);
 		}
 	}
 	function parse_all() {
@@ -1034,12 +1052,12 @@ class HTML_Node {
 		}
 		$this->children = array();
 	}
-	function changeParent($to, &$index = -1) {
+	function changeParent($to, &$index) {
 		if ($this->parent !== null) {
 			$this->parent->deleteChild($this, true);
 		}
 		$this->parent = $to;
-		if ($index !== null) {
+		if ($index !== false) {
 			$new_index = $this->index();
 			if (!(is_int($new_index) && ($new_index >= 0))) {
 				$this->parent->addChild($this, $index);
@@ -1070,10 +1088,10 @@ class HTML_Node {
 	function isTextOrComment() {
 		return false;
 	}
-	function move($to, &$new_index = -1) {
+	function move($to, &$new_index) {
 		$this->changeParent($to, $new_index);
 	}
-	function moveChildren($to, &$new_index = -1, $start = 0, $end = -1) {
+	function moveChildren($to, &$new_index, $start = 0, $end = -1) {
 		if ($end < 0) {
 			$end += count($this->children);
 		}
@@ -1230,11 +1248,12 @@ class HTML_Node {
 			return $this->children[$child];
 		}
 	}
-	function &addChild($tag, &$offset = null) {
+	function &addChild($tag, &$offset) {
 		if (!is_object($tag)) {
 			$tag = new $this->childClass($tag, $this);
 		} elseif ($tag->parent !== $this) {
-			$tag->changeParent($this, false);
+			$index = false; 
+			$tag->changeParent($this, $index);
 		}
 		if (is_int($offset) && ($offset < count($this->children)) && ($offset !== -1)) {
 			if ($offset < 0) {
@@ -1255,25 +1274,25 @@ class HTML_Node {
 	function &insertChild($tag, $index) {
 		return $this->addChild($tag, $index);
 	}
-	function &addText($text, &$offset = null) {
+	function &addText($text, &$offset) {
 		return $this->addChild(new $this->childClass_Text($this, $text), $offset);
 	}
-	function &addComment($text, &$offset = null) {
+	function &addComment($text, &$offset) {
 		return $this->addChild(new $this->childClass_Comment($this, $text), $offset);
 	}
-	function &addConditional($condition, $hidden = true, &$offset = null) {
+	function &addConditional($condition, $hidden = true, &$offset) {
 		return $this->addChild(new $this->childClass_Conditional($this, $condition, $hidden), $offset);
 	}
-	function &addCDATA($text, &$offset = null) {
+	function &addCDATA($text, &$offset) {
 		return $this->addChild(new $this->childClass_CDATA($this, $text), $offset);
 	}
-	function &addDoctype($dtd, &$offset = null) {
+	function &addDoctype($dtd, &$offset) {
 		return $this->addChild(new $this->childClass_Doctype($this, $dtd), $offset);
 	}
-	function &addXML($tag = 'xml', $text = '', $attributes = array(), &$offset = null) {
+	function &addXML($tag = 'xml', $text = '', $attributes = array(), &$offset) {
 		return $this->addChild(new $this->childClass_XML($this, $tag, $text, $attributes), $offset);
 	}
-	function &addASP($tag = '', $text = '', $attributes = array(), &$offset = null) {
+	function &addASP($tag = '', $text = '', $attributes = array(), &$offset) {
 		return $this->addChild(new $this->childClass_ASP($this, $tag, $text, $attributes), $offset);
 	}
 	function deleteChild($child, $soft_delete = false) {
@@ -2686,41 +2705,7 @@ class HTML_Formatter {
 		}
 	}
 	function minify_javascript(&$root, $indent_string = ' ', $wrap_comment = true, $recursive = true) {
-		include_once('third party/jsminplus.php');
-		$errors = array();
-		foreach($root->select('script:not-empty > "~text~"', false, $recursive, true) as $c) {
-			try {
-				$text = $c->text;
-				while ($text) {
-					$text = trim($text);
-					if (substr($text, 0, 4) === '<!--') {
-						$text = substr($text, 5);
-						continue;
-					} elseif (strtolower(substr($text, 0, 9)) === '<![cdata[') {
-						$text = substr($text, 10);
-						continue;
-					}
-					if (($end = substr($text, -3)) && (($end === '-->') || ($end === ']]>'))) {
-						$text = substr($text, 0, -3);
-						continue;
-					}
-					break;
-				}
-				if (trim($text)) {
-					$text = JSMinPlus::minify($text);
-					if ($wrap_comment) {
-						$text = "<!--\n".$text."\n//-->";
-					}
-					if ($indent_string && ($wrap_comment || (strpos($text, "\n") !== false))) {
-						$text = indent_text("\n".$text, $c->indent(), $indent_string);
-					}
-				}
-				$c->text = $text;
-			} catch (Exception $e) {
-				$errors[] = array($e, $c->parent->dumpLocation());
-			}
-		}
-		return (($errors) ? $errors : true);
+	return true;
 	}
 	function format_html(&$root, $recursive = null) {
 		if ($recursive === null) {
