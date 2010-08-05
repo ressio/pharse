@@ -635,7 +635,8 @@ class HTML_Parser extends HTML_Parser_Base {
 				for ($count = count($c), $i = $count - 1; $i >= 0; $i--) {
 					if (strcasecmp($c[$i]->tag, $this->status['tag_name']) === 0) {
 						for($ii = $i + 1; $ii < $count; $ii++) {
-							$c[$i + 1]->changeParent($c[$i]);
+							$index = null; 
+							$c[$i + 1]->changeParent($c[$i], $index);
 						}
 						$c[$i]->self_close = false;
 						$found = true;
@@ -646,11 +647,14 @@ class HTML_Parser extends HTML_Parser_Base {
 					$this->addError('Closing tag "'.$this->status['tag_name'].'" which is not open');
 				}
 			} elseif ($this->status['tag_name'][0] === '?') {
-				$this->hierarchy[count($this->hierarchy) - 1]->addXML($this->status['tag_name'], '', $this->status['attributes']);
+				$index = null; 
+				$this->hierarchy[count($this->hierarchy) - 1]->addXML($this->status['tag_name'], '', $this->status['attributes'], $index);
 			} elseif ($this->status['tag_name'][0] === '%') {
-				$this->hierarchy[count($this->hierarchy) - 1]->addASP($this->status['tag_name'], '', $this->status['attributes']);
+				$index = null; 
+				$this->hierarchy[count($this->hierarchy) - 1]->addASP($this->status['tag_name'], '', $this->status['attributes'], $index);
 			} else {
-				$this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);;
+				$index = null; 
+				$this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
 			}
 		} elseif ($this->status['closing_tag']) {
 			$found = false;
@@ -670,63 +674,76 @@ class HTML_Parser extends HTML_Parser_Base {
 				$this->addError('Closing tag "'.$this->status['tag_name'].'" which is not open');
 			}
 		} else {
-			$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);	
+			$index = null; 
+			$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);	
 		}
 	}
 	function parse_cdata() {
 		if (!parent::parse_cdata()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addCDATA($this->status['cdata']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addCDATA($this->status['cdata'], $index);
 		return true;
 	}
 	function parse_comment() {
 		if (!parent::parse_comment()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addComment($this->status['comment']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addComment($this->status['comment'], $index);
 		return true;
 	}
 	function parse_conditional() {
 		if (!parent::parse_conditional()) {return false;}
 		if ($this->status['comment']) {
-			$e = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], true);
+			$index = null; 
+			$e = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], true, $index);
 			if ($this->status['text']) {
-				$e->addText($this->status['text']);
+				$index = null; 
+				$e->addText($this->status['text'], $index);
 			}
 		} else {
 			if ($this->status['closing_tag']) {
 				$this->parse_hierarchy(false);
 			} else {
-				$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], false);
+				$index = null; 
+				$this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], false, $index);
 			}
 		}
 		return true;
 	}
 	function parse_doctype() {
 		if (!parent::parse_doctype()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addDoctype($this->status['dtd']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addDoctype($this->status['dtd'], $index);
 		return true;
 	}
 	function parse_php() {
 		if (!parent::parse_php()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text'], $index);
 		return true;
 	}
 	function parse_asp() {
 		if (!parent::parse_asp()) {return false;}
-		$this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text']);
+		$index = null; 
+		$this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text'], $index);
 		return true;
 	}
 	function parse_script() {
 		if (!parent::parse_script()) {return false;}
-		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);
+		$index = null; 
+		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
 		if ($this->status['text']) {
-			$e->addText($this->status['text']);
+			$index = null; 
+			$e->addText($this->status['text'], $index);
 		}
 		return true;
 	}
 	function parse_style() {
 		if (!parent::parse_style()) {return false;}
-		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status);
+		$index = null; 
+		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
 		if ($this->status['text']) {
-			$e->addText($this->status['text']);
+			$index = null; 
+			$e->addText($this->status['text'], $index);
 		}
 		return true;
 	}
@@ -738,7 +755,8 @@ class HTML_Parser extends HTML_Parser_Base {
 	function parse_text() {
 		parent::parse_text();
 		if ($this->status['text']) {
-			$this->hierarchy[count($this->hierarchy) - 1]->addText($this->status['text']);
+			$index = null; 
+			$this->hierarchy[count($this->hierarchy) - 1]->addText($this->status['text'], $index);
 		}
 	}
 	function parse_all() {
@@ -1005,12 +1023,12 @@ class HTML_Node {
 		}
 		$this->children = array();
 	}
-	function changeParent($to, &$index = -1) {
+	function changeParent($to, &$index = null) {
 		if ($this->parent !== null) {
 			$this->parent->deleteChild($this, true);
 		}
 		$this->parent = $to;
-		if ($index !== null) {
+		if ($index !== false) {
 			$new_index = $this->index();
 			if (!(is_int($new_index) && ($new_index >= 0))) {
 				$this->parent->addChild($this, $index);
@@ -1205,7 +1223,8 @@ class HTML_Node {
 		if (!is_object($tag)) {
 			$tag = new $this->childClass($tag, $this);
 		} elseif ($tag->parent !== $this) {
-			$tag->changeParent($this, false);
+			$index = false; 
+			$tag->changeParent($this, $index);
 		}
 		if (is_int($offset) && ($offset < count($this->children)) && ($offset !== -1)) {
 			if ($offset < 0) {
