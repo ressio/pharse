@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - PHP5+ version
- * Generated on 5 Aug 2010
+ * Generated on 14 Nov 2010
  *
  * @author Niels A.D.
  * @package Ganon
@@ -1857,7 +1857,7 @@ CALLBACK;
 	protected function filter_lang($lang) {
 		return ($this->lang === $lang);
 	}
-	protected function filter_containts($text) {
+	protected function filter_contains($text) {
 		return (strpos($this->getPlainText(), $text) !== false);
 	}
 	protected function filter_has($selector) {
