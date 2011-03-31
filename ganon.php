@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - PHP5+ version
- * Generated on 14 Nov 2010
+ * Generated on 31 Mar 2011
  *
  * @author Niels A.D.
  * @package Ganon
@@ -238,7 +238,7 @@ class Tokenizer_Base {
 	}
 	function next_pos($needle, $callback = true) {
 		$this->token_start = $this->pos;
-		if (($this->pos < $this->size) && (($p = strpos($this->doc, $needle, $this->pos + 1)) !== false)) {
+		if (($this->pos < $this->size) && (($p = stripos($this->doc, $needle, $this->pos + 1)) !== false)) {
 			$len = $p - $this->pos - 1;
 			if ($len > 0) {
 				$str = substr($this->doc, $this->pos + 1, $len);
@@ -695,7 +695,7 @@ class HTML_Parser extends HTML_Parser_Base {
 		if ($this->status['comment']) {
 			$index = null; 
 			$e = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], true, $index);
-			if ($this->status['text']) {
+			if ($this->status['text'] !== '') {
 				$index = null; 
 				$e->addText($this->status['text'], $index);
 			}
@@ -731,7 +731,7 @@ class HTML_Parser extends HTML_Parser_Base {
 		if (!parent::parse_script()) {return false;}
 		$index = null; 
 		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
-		if ($this->status['text']) {
+		if ($this->status['text'] !== '') {
 			$index = null; 
 			$e->addText($this->status['text'], $index);
 		}
@@ -741,7 +741,7 @@ class HTML_Parser extends HTML_Parser_Base {
 		if (!parent::parse_style()) {return false;}
 		$index = null; 
 		$e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
-		if ($this->status['text']) {
+		if ($this->status['text'] !== '') {
 			$index = null; 
 			$e->addText($this->status['text'], $index);
 		}
@@ -754,7 +754,7 @@ class HTML_Parser extends HTML_Parser_Base {
 	}
 	function parse_text() {
 		parent::parse_text();
-		if ($this->status['text']) {
+		if ($this->status['text'] !== '') {
 			$index = null; 
 			$this->hierarchy[count($this->hierarchy) - 1]->addText($this->status['text'], $index);
 		}
@@ -1208,7 +1208,7 @@ class HTML_Node {
 			$last = null;
 			foreach(array_keys($this->children) as $k) {
 				if (!$this->children[$k]->isTextOrComment()) {
-					if (++$count === $child) {
+					if ($count++ === $child) {
 						return $this->children[$k];
 					}
 					$last = $this->children[$k];
