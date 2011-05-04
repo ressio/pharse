@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - modified for PHP4
- * Generated on 13 Apr 2011
+ * Generated on 4 May 2011
  *
  * @author Niels A.D.
  * @package Ganon
@@ -14,8 +14,14 @@ function str_get_dom($str, $return_root = true) {
 	$a = new HTML_Parser_HTML5($str);
 	return (($return_root) ? $a->root : $a);
 }
-function file_get_dom($file, $return_root = true) {
-	$f = file_get_contents($file);
+function file_get_dom($file, $return_root = true, $use_include_path = false, $context = null) {
+	if (version_compare(PHP_VERSION, '5.0.0', '>='))
+		$f = file_get_contents($file, $use_include_path, $context);
+	else {
+		if ($context !== null)
+			trigger_error('Context parameter not supported in this PHP version');
+		$f = file_get_contents($file, $use_include_path);
+	}
 	return (($f === false) ? false : str_get_dom($f, $return_root));
 }
 function dom_format(&$root, $options = array()) {
@@ -2338,7 +2344,7 @@ class HTML_Selector {
 				}
 				$conditions['attributes'][] = array(
 					'attribute' => 'class',
-					'operator_value' => 'equals',
+					'operator_value' => 'contains',
 					'value' => $class,
 					'operator_result' => $last_mode
 				);
