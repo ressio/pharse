@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - modified for PHP4
- * Generated on 4 May 2011
+ * Generated on 16 Feb 2012
  *
  * @author Niels A.D.
  * @package Ganon
@@ -1045,7 +1045,7 @@ class HTML_Node {
 		if (($p = $this->parent) !== null) {
 			$this->parent = null;
 			if ($move_children_up) {
-				foreach(array_keys($this->children) as $k) {
+				foreach(array_reverse(array_keys($this->children)) as $k) {
 					$this->children[$k]->changeParent($p);
 				}
 			}
@@ -1171,7 +1171,7 @@ class HTML_Node {
 		return $n;
 	}
 	function getPreviousSibling($skip_text_comments = true) {
-		$offset = 1;
+		$offset = -1;
 		while (($n = $this->getSibling($offset)) !== null) {
 			if ($skip_text_comments && ($n->tag[0] === '~')) {
 				--$offset;
@@ -1205,12 +1205,13 @@ class HTML_Node {
 		return $this->tag_ns[1];
 	}
 	function setTag($tag, $with_ns = false) {
+		$with_ns = $with_ns || (strpos($tag, ':') !== false);
 		if ($with_ns) {
 			$this->tag = $tag;
 			$this->tag_ns = null;
 		} elseif ($this->getTag() !== $tag) {
 			$this->tag_ns[1] = $tag;
-			$this->tag = $this->tag_ns[0].':'.$tag;
+			$this->tag = (($this->tag_ns[0]) ? $this->tag_ns[0].':' : '').$tag;
 		}
 	}
 	function childCount($ignore_text_comments = false) {
@@ -1719,7 +1720,7 @@ class HTML_Node {
 			if (($a && (!$this->match_attributes($conditions['attributes']))) === $match) {
 				return false;
 			}
-			if (($f && (!$this->match_filters($conditions['filters']))) === $match) {
+			if (($f && (!$this->match_filters($conditions['filters'], $custom_filters))) === $match) {
 				return false;
 			}
 			return true;
@@ -2734,7 +2735,7 @@ class HTML_Formatter {
 				ksort($root->attributes);
 			}
 		}
-		if ($root->filter_element()) {
+		if ($root->select(':element', true, false, true)) {
 			$root->setTag(strtolower($root->tag), true);
 			if (($this->options['img_alt'] !== null) && ($root_tag === 'img') && (!isset($root->alt))) {
 				$root->alt = $this->options['img_alt'];
