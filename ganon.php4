@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - modified for PHP4
- * Generated on 16 Feb 2012
+ * Generated on 24 Mar 2012
  *
  * @author Niels A.D.
  * @package Ganon
@@ -932,7 +932,7 @@ class HTML_Node {
 		$this->delete();
 	}
 	function __toString() {
-		return (($this->tag === '~root~') ? $this->getInnerText() : $this->tag);
+		return (($this->tag === '~root~') ? $this->toString(true, true, 1) : $this->tag);
 	}
 	function __get($attribute) {
 		return $this->getAttribute($attribute);
@@ -1007,7 +1007,7 @@ class HTML_Node {
 		return (($parser && $parser->errors) ? $parser->errors : true);
 	}
 	function html() {
-		return $this->getOuterText();
+		return $this->toString();
 	}
 	function getInnerText() {
 		return html_entity_decode($this->toString(true, true, 1), ENT_QUOTES);
@@ -1635,43 +1635,43 @@ class HTML_Node {
 							case '%=':
 							case 'contains_regex':
 								$res = ((preg_match('`'.$match['value'].'`s', $val) > 0) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '|=':
 							case 'contains_prefix':
 								$res = ((preg_match('`\b'.preg_quote($match['value']).'[\-\s]?`s', $val) > 0) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '~=':
 							case 'contains_word':
 								$res = ((preg_match('`\b'.preg_quote($match['value']).'\b`s', $val) > 0) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '*=':
 							case 'contains':
 								$res = ((strpos($val, $match['value']) !== false) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '$=':
 							case 'ends_with':
 								$res = ((substr($val, -strlen($match['value'])) === $match['value']) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '^=':
 							case 'starts_with':
 								$res = ((substr($val, 0, strlen($match['value'])) === $match['value']) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '!=':
 							case 'not_equal':
 								$res = (($val !== $match['value']) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '=':
 							case 'equals':
 								$res = (($val === $match['value']) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '>=':
 							case 'bigger_than':
 								$res = (($val >= $match['value']) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							case '<=':
 							case 'smaller_than':
 								$res = (($val >= $match['value']) === $match['match']);
-								break ((int) $res) + 1;
+								if ($res) break 1; else break 2;
 							default:
 								trigger_error('Unknown operator "'.$match['operator_value'].'" to match attributes!');
 								return false;
@@ -1801,7 +1801,7 @@ CALLBACK;
 			if ($index < 0) {
 				$index += count($res);
 			}
-			return $res[$index];
+			return ($index < count($res)) ? $res[$index] : null;
 		} else {
 			return $res;
 		}
@@ -1928,8 +1928,8 @@ class HTML_NODE_TEXT extends HTML_Node {
 	function filter_element() {return false;}
 	function filter_text() {return true;}
 	function toString_attributes() {return '';}
-	function toString_content() {return $this->text;}
-	function toString() {return $this->text;}
+	function toString_content($attributes = true, $recursive = true, $content_only = false) {return $this->text;}
+	function toString($attributes = true, $recursive = true, $content_only = false) {return $this->text;}
 }
 class HTML_NODE_COMMENT extends HTML_Node {
 	var $NODE_TYPE = NODE_COMMENT;
@@ -1945,8 +1945,8 @@ class HTML_NODE_COMMENT extends HTML_Node {
 	function filter_element() {return false;}
 	function filter_comment() {return true;}
 	function toString_attributes() {return '';}
-	function toString_content() {return $this->text;}
-	function toString() {return '<!--'.$this->text.'-->';}
+	function toString_content($attributes = true, $recursive = true, $content_only = false) {return $this->text;}
+	function toString($attributes = true, $recursive = true, $content_only = false) {return '<!--'.$this->text.'-->';}
 }
 class HTML_NODE_CONDITIONAL extends HTML_Node {
 	var $NODE_TYPE = NODE_CONDITIONAL;
@@ -1986,8 +1986,8 @@ class HTML_NODE_CDATA extends HTML_Node {
 	function HTML_NODE_CDATA($parent, $text = '') {return $this->__construct($parent, $text);}
 	function filter_element() {return false;}
 	function toString_attributes() {return '';}
-	function toString_content() {return $this->text;}
-	function toString() {return '<![CDATA['.$this->text.']]>';}
+	function toString_content($attributes = true, $recursive = true, $content_only = false) {return $this->text;}
+	function toString($attributes = true, $recursive = true, $content_only = false) {return '<![CDATA['.$this->text.']]>';}
 }
 class HTML_NODE_DOCTYPE extends HTML_Node {
 	var $NODE_TYPE = NODE_DOCTYPE;
@@ -2000,8 +2000,8 @@ class HTML_NODE_DOCTYPE extends HTML_Node {
 	function HTML_NODE_DOCTYPE($parent, $dtd = '') {return $this->__construct($parent, $dtd);}
 	function filter_element() {return false;}
 	function toString_attributes() {return '';}
-	function toString_content() {return $this->text;}
-	function toString() {return '<'.$this->tag.' '.$this->dtd.'>';}
+	function toString_content($attributes = true, $recursive = true, $content_only = false) {return $this->text;}
+	function toString($attributes = true, $recursive = true, $content_only = false) {return '<'.$this->tag.' '.$this->dtd.'>';}
 }
 class HTML_NODE_EMBEDDED extends HTML_Node {
 	var $tag_char = '';
@@ -2774,7 +2774,7 @@ class HTML_Formatter {
 						++$child_count;
 					}
 				}
-				if ($format_inside) {
+				if ($format_inside && count($n->children)) {
 					$last = $n->children[count($n->children) - 1];
 					$last_tag = ($last) ? strtolower($last->tag) : '';
 					$last_asblock = ($last_tag && isset($this->block_elements[$last_tag]) && $this->block_elements[$last_tag]['as_block']);
