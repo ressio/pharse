@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - PHP5+ version
- * Generated on 24 Mar 2012
+ * Generated on 20 Oct 2012
  *
  * @author Niels A.D.
  * @package Ganon
@@ -146,20 +146,25 @@ class Tokenizer_Base {
 	function addError($error) {
 		$this->errors[] = htmlentities($error.' at '.($this->line_pos[0] + 1).', '.($this->pos - $this->line_pos[1] + 1).'!');
 	}
+	protected function parse_linebreak() {
+		if($this->doc[$this->pos] === "\r") {
+			++$this->line_pos[0];
+			if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === "\n")) {
+				++$this->pos;
+			}
+			$this->line_pos[1] = $this->pos;
+		} elseif($this->doc[$this->pos] === "\n") {
+			++$this->line_pos[0];
+			$this->line_pos[1] = $this->pos;
+		}
+	}
 	protected function parse_whitespace() {
 		$this->token_start = $this->pos;
 		while(++$this->pos < $this->size) {
 			if (!isset($this->whitespace[$this->doc[$this->pos]])) {
 				break;
-			} elseif($this->doc[$this->pos] === "\r") {
-				++$this->line_pos[0];
-				if ($this->doc[$this->pos + 1] === "\n") {
-					++$this->pos;
-				}
-				$this->line_pos[1] = $this->pos;
-			} elseif($this->doc[$this->pos] === "\n") {
-				++$this->line_pos[0];
-				$this->line_pos[1] = $this->pos;
+			} else {
+				$this->parse_linebreak();
 			}
 		}
 		--$this->pos;
@@ -200,15 +205,8 @@ class Tokenizer_Base {
 				} else {
 					return ($this->token = self::TOK_UNKNOWN);
 				}
-			} elseif($this->doc[$this->pos] === "\r") {
-				++$this->line_pos[0];
-				if ($this->doc[$this->pos + 1] === "\n") {
-					++$this->pos;
-				}
-				$this->line_pos[1] = $this->pos;
-			} elseif($this->doc[$this->pos] === "\n") {
-				++$this->line_pos[0];
-				$this->line_pos[1] = $this->pos;
+			} else {
+				$this->parse_linebreak();
 			}
 		}
 		return ($this->token = self::TOK_NULL);
@@ -229,15 +227,8 @@ class Tokenizer_Base {
 				} else {
 					return ($this->token = self::TOK_UNKNOWN);
 				}
-			} elseif($this->doc[$this->pos] === "\r") {
-				++$this->line_pos[0];
-				if ($this->doc[$this->pos + 1] === "\n") {
-					++$this->pos;
-				}
-				$this->line_pos[1] = $this->pos;
-			} elseif($this->doc[$this->pos] === "\n") {
-				++$this->line_pos[0];
-				$this->line_pos[1] = $this->pos;
+			} else {
+				$this->parse_linebreak();
 			}
 		}
 		return ($this->token = self::TOK_NULL);
@@ -528,7 +519,8 @@ class HTML_Parser_Base extends Tokenizer_Base {
 		$start = $this->pos;
 		$this->status['self_close'] = false;
 		$this->parse_text();
-		if ($this->doc[$this->pos + 1] === '!') {
+		$next = (($this->pos + 1) < $this->size) ? $this->doc[$this->pos + 1] : '';
+		if ($next === '!') {
 			$this->status['closing_tag'] = false;
 			if (substr($this->doc, $this->pos + 2, 2) === '--') {
 				$this->status['comment'] = true;
@@ -550,7 +542,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 					}
 				}
 			}
-		} elseif ($this->doc[$this->pos + 1] === '/') {
+		} elseif ($next === '/') {
 			$this->status['closing_tag'] = true;
 			++$this->pos;
 		} else {
@@ -617,9 +609,6 @@ class HTML_Parser extends HTML_Parser_Base {
 		}
 		$this->root =& $root;
 		parent::__construct($doc, $pos);
-	}
-	function __destruct() {
-		$this->root = null;
 	}
 	function __invoke($query = '*') {
 		return $this->select($query);
@@ -970,9 +959,7 @@ class HTML_Node {
 			}
 			$parser->setDoc($text);
 			$parser->parse_all();
-			foreach(array_keys($parser->root->children) as $k) {
-				$this->parent->addChild($parser->root->children[$k], $index);
-			}
+			$parser->root->moveChildren($this->parent, $index);
 		}
 		$this->delete();
 		return (($parser && $parser->errors) ? $parser->errors : true);
@@ -998,6 +985,14 @@ class HTML_Node {
 	function getPlainText() {
 		return preg_replace('`\s+`', ' ', html_entity_decode($this->toString(true, true, true), ENT_QUOTES));
 	}
+	function getPlainTextUTF8() {
+		$txt = $this->getPlainText();
+		$enc = $this->getEncoding();
+		if ($enc !== false) {
+			$txt = mb_convert_encoding($txt, "UTF-8", $enc);
+		}
+		return $txt;
+	}
 	function setPlainText($text) {
 		$this->clear();
 		if (trim($text)) {
@@ -1014,20 +1009,29 @@ class HTML_Node {
 	}
 	function detach($move_children_up = false) {
 		if (($p = $this->parent) !== null) {
+			$index = $this->index();
 			$this->parent = null;
 			if ($move_children_up) {
-				foreach(array_reverse(array_keys($this->children)) as $k) {
-					$this->children[$k]->changeParent($p);
-				}
+				$this->moveChildren($p, $index);
 			}
 			$p->deleteChild($this, true);
 		}
 	}
 	function clear() {
 		foreach($this->children as $c) {
+			$c->parent = null;
 			$c->delete();
 		}
 		$this->children = array();
+	}
+	function getRoot() {
+		$r = $this->parent;
+		$n = ($r === null) ? null : $r->parent;
+		while ($n !== null) {
+			$r = $n;
+			$n = $r->parent;
+		}
+		return $r;
 	}
 	function changeParent($to, &$index = null) {
 		if ($this->parent !== null) {
@@ -1185,6 +1189,20 @@ class HTML_Node {
 			$this->tag = (($this->tag_ns[0]) ? $this->tag_ns[0].':' : '').$tag;
 		}
 	}
+	function getEncoding() {
+		$root = $this->getRoot();
+		if ($root !== null) {
+			if ($enc = $root->select('meta[charset]', 0, true, true)) {
+				return $enc->getAttribute("charset");
+			} elseif ($enc = $root->select('"?xml"[encoding]', 0, true, true)) {
+				return $enc->getAttribute("encoding");
+			} elseif ($enc = $root->select('meta[content*="charset="]', 0, true, true)) {
+				$enc = $enc->getAttribute("content");
+				return substr($enc, strpos($enc, "charset=")+8);
+			}
+		}
+		return false;
+	}	
 	function childCount($ignore_text_comments = false) {
 		if (!$ignore_text_comments) {
 			return count($this->children);
@@ -1289,25 +1307,31 @@ class HTML_Node {
 		}
 		$this->children = $tmp;
 	}
-	function wrap($node, $index = -1, $child_index = -1) {
-		if (!is_object($node)) {
-			$node = $this->parent->addChild($node, $index);
-		} elseif ($node->parent !== $this->parent) {
-			$node->changeParent($this->parent, $index);
+	function wrap($node, $wrap_index = -1, $node_index = null) {
+		if ($node_index === null) {
+			$node_index = $this->index();
 		}
-		$this->changeParent($node, $child_index);
+		if (!is_object($node)) {
+			$node = $this->parent->addChild($node, $node_index);
+		} elseif ($node->parent !== $this->parent) {
+			$node->changeParent($this->parent, $node_index);
+		}
+		$this->changeParent($node, $wrap_index);
 		return $node;
 	}
-	function wrapInner($node, $start = 0, $end = -1, $index = -1, $child_index = -1) {
+	function wrapInner($node, $start = 0, $end = -1, $wrap_index = -1, $node_index = null) {
 		if ($end < 0) {
 			$end += count($this->children);
 		}
-		if (!is_object($node)) {
-			$node = $this->addChild($node, $index);
-		} elseif ($node->parent !== $this) {
-			$node->changeParent($this->parent, $index);
+		if ($node_index === null) {
+			$node_index = $end + 1;
 		}
-		$this->moveChildren($node, $child_index, $start, $end);
+		if (!is_object($node)) {
+			$node = $this->addChild($node, $node_index);
+		} elseif ($node->parent !== $this) {
+			$node->changeParent($this->parent, $node_index);
+		}
+		$this->moveChildren($node, $wrap_index, $start, $end);
 		return $node;
 	}
 	function attributeCount() {
@@ -1512,6 +1536,28 @@ class HTML_Node {
 		}
 		return $res;
 	}
+	function getChildrenByMatch($conditions, $recursive = true, $check_self = false, $custom_filters = array()) {
+		$count = $this->childCount();
+		if ($check_self && $this->match($conditions, true, $custom_filters)) {
+			$res = array($this);
+		} else {
+			$res = array();
+		}
+		if ($count > 0) {
+			if (is_int($recursive)) {
+				$recursive = (($recursive > 1) ? $recursive - 1 : false);
+			}
+			for ($i = 0; $i < $count; $i++) {
+				if ($this->children[$i]->match($conditions, true, $custom_filters)) {
+					$res[] = $this->children[$i];
+				}
+				if ($recursive) {
+					$res = array_merge($res, $this->children[$i]->getChildrenByMatch($conditions, $recursive, false, $custom_filters));
+				}
+			}
+		}
+		return $res;
+	}
 	protected function match_tags($tags) {
 		$res = false;
 		foreach($tags as $tag => $match) {
@@ -1703,27 +1749,17 @@ class HTML_Node {
 		}
 		$mode = explode(' ', strtolower($mode));
 		$match = ((isset($mode[1]) && ($mode[1] === 'not')) ? 'false' : 'true');
-		$func =
-<<<CALLBACK
-	return (%s->match(array(
-		'attributes' => array(
-			'%s' => array(
-				'operator_value' => '%s',
-				'value' => %s,
-				'match' => %s,
-				'compare' => '%s'
-			)
-		)
-	)));
-CALLBACK;
-		return $this->getChildrenByCallback(
-			create_function('$e', sprintf($func, '$e',
-				$attribute,
-				$mode[0],
-				((is_string($value)) ? "'$value'" : (($value) ? 'true' : 'false')),
-				$match,
-				$compare
-			)),
+		return $this->getChildrenByMatch(
+			array(
+				'attributes' => array(
+					$attribute => array(
+						'operator_value' => $mode[0],
+						'value' => $value,
+						'match' => $match,
+						'compare' => $compare
+					)
+				)
+			),
 			$recursive
 		);
 	}
@@ -1733,34 +1769,26 @@ CALLBACK;
 		}
 		$tag = explode(' ', strtolower($tag));
 		$match = ((isset($tag[1]) && ($tag[1] === 'not')) ? 'false' : 'true');
-		$func =
-<<<CALLBACK
-	return (%s->match(array(
-		'tags' => array(
-			'%s' => array(
-				'match' => %s,
-				'compare' => '%s'
-			)
-		)
-	)));
-CALLBACK;
-		return $this->getChildrenByCallback(
-			create_function('$e', sprintf($func, '$e',
-				$tag[0],
-				$match,
-				$compare
-			)),
+		return $this->getChildrenByMatch(
+			array(
+				'tags' => array(
+					$tag[0] => array(
+						'match' => $match,
+						'compare' => $compare
+					)
+				)
+			),
 			$recursive
 		);
 	}
 	function getChildrenByID($id, $recursive = true) {
-		return getChildrenByAttribute('id', $id, 'equals', 'total', $recursive);
+		return $this->getChildrenByAttribute('id', $id, 'equals', 'total', $recursive);
 	}
 	function getChildrenByClass($class, $recursive = true) {
-		return getChildrenByAttribute('class', $id, 'equals', 'total', $recursive);
+		return $this->getChildrenByAttribute('class', $id, 'equals', 'total', $recursive);
 	}
 	function getChildrenByName($name, $recursive = true) {
-		return getChildrenByAttribute('name', $name, 'equals', 'total', $recursive);
+		return $this->getChildrenByAttribute('name', $name, 'equals', 'total', $recursive);
 	}
 	function select($query = '*', $index = false, $recursive = true, $check_self = false) {
 		$s = new $this->selectClass($this, $query, $check_self, $recursive);
@@ -2059,7 +2087,7 @@ class Tokenizer_CSSQuery extends Tokenizer_Base {
 		':' => self::TOK_COLON
 	);
 	protected function parse_gt() {
-		if ($this->doc[$this->pos + 1] === '=') {
+		if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === '=')) {
 			++$this->pos;
 			return ($this->token = self::TOK_COMPARE_BIGGER_THAN);
 		} else {
@@ -2067,7 +2095,7 @@ class Tokenizer_CSSQuery extends Tokenizer_Base {
 		}
 	}
 	protected function parse_sibling() {
-		if ($this->doc[$this->pos + 1] === '=') {
+		if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === '=')) {
 			++$this->pos;
 			return ($this->token = self::TOK_COMPARE_CONTAINS_WORD);
 		} else {
@@ -2075,7 +2103,7 @@ class Tokenizer_CSSQuery extends Tokenizer_Base {
 		}
 	}
 	protected function parse_pipe() {
-		if ($this->doc[$this->pos + 1] === '=') {
+		if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === '=')) {
 			++$this->pos;
 			return ($this->token = self::TOK_COMPARE_PREFIX);
 		} else {
@@ -2083,7 +2111,7 @@ class Tokenizer_CSSQuery extends Tokenizer_Base {
 		}
 	}
 	protected function parse_star() {
-		if ($this->doc[$this->pos + 1] === '=') {
+		if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === '=')) {
 			++$this->pos;
 			return ($this->token = self::TOK_COMPARE_CONTAINS);
 		} else {
@@ -2091,7 +2119,7 @@ class Tokenizer_CSSQuery extends Tokenizer_Base {
 		}
 	}
 	protected function parse_not() {
-		if ($this->doc[$this->pos + 1] === '=') {
+		if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === '=')) {
 			++$this->pos;
 			return ($this->token = self::TOK_COMPARE_NOT_EQUAL);
 		} else {
@@ -2099,7 +2127,7 @@ class Tokenizer_CSSQuery extends Tokenizer_Base {
 		}
 	}
 	protected function parse_compare() {
-		if ($this->doc[$this->pos + 1] === '=') {
+		if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === '=')) {
 			switch($this->doc[$this->pos++]) {
 				case '$':
 					return ($this->token = self::TOK_COMPARE_ENDS);
@@ -2332,7 +2360,7 @@ class HTML_Selector {
 				}
 				$conditions['attributes'][] = array(
 					'attribute' => 'class',
-					'operator_value' => 'contains',
+					'operator_value' => 'contains_word',
 					'value' => $class,
 					'operator_result' => $last_mode
 				);
@@ -2506,18 +2534,11 @@ class HTML_Selector {
 		return $conditions_all;
 	}
 	protected function parse_callback($conditions, $recursive = true, $check_root = false) {
-		$c = var_export($conditions, true);
-		$f = var_export($this->custom_filter_map, true);
-		$func =
-<<<func
-	static \$conditions = $c;
-	static \$filter_map = $f;
-	return (\$e->match(\$conditions, true, \$filter_map));
-func;
-		return ($this->result = $this->root->getChildrenByCallback(
-			create_function('$e', $func),
+		return ($this->result = $this->root->getChildrenByMatch(
+			$conditions,
 			$recursive,
-			$check_root
+			$check_root,
+			$this->custom_filter_map
 		));
 	}
 	protected function parse_single($recursive = true) {
