@@ -1,7 +1,7 @@
 <?php
 /**
  * Ganon single file version - PHP5+ version
- * Generated on 20 Oct 2012
+ * Generated on 11 Nov 2012
  *
  * @author Niels A.D.
  * @package Ganon
@@ -915,7 +915,7 @@ class HTML_Node {
 	protected function toString_attributes() {
 		$s = '';
 		foreach($this->attributes as $a => $v) {
-			$s .= ' '.$a.(((!$this->attribute_shorttag) || ($this->attributes[$a] !== $a)) ? '="'.htmlspecialchars($this->attributes[$a], ENT_QUOTES, '', false).'"' : '');
+			$s .= ' '.$a.(((!$this->attribute_shorttag) || ($v !== $a)) ? '="'.htmlspecialchars($v, ENT_QUOTES, '', false).'"' : '');
 		}
 		return $s;
 	}
@@ -1157,7 +1157,7 @@ class HTML_Node {
 		return $n;
 	}
 	function getNamespace() {
-		if ($tag_ns === null) {
+		if ($this->tag_ns === null) {
 			$a = explode(':', $this->tag, 2);
 			if (empty($a[1])) {
 				$this->tag_ns = array('', $a[0]);
@@ -1174,7 +1174,7 @@ class HTML_Node {
 		}
 	}
 	function getTag() {
-		if ($tag_ns === null) {
+		if ($this->tag_ns === null) {
 			$this->getNamespace();
 		}
 		return $this->tag_ns[1];
@@ -1486,7 +1486,7 @@ class HTML_Node {
 		}
 	}
 	function hasClass($className) {
-		return ($className && preg_match('`\b'.preg_quote($className).'\b`si', $class = $this->class));
+		return ($className && preg_match('`\b'.preg_quote($className).'\b`si', $this->class));
 	}
 	function addClass($className) {
 		if (!is_array($className)) {
@@ -1655,11 +1655,11 @@ class HTML_Node {
 								if ($res) break 1; else break 2;
 							case '|=':
 							case 'contains_prefix':
-								$res = ((preg_match('`\b'.preg_quote($match['value']).'[\-\s]?`s', $val) > 0) === $match['match']);
+								$res = ((preg_match('`\b'.preg_quote($match['value']).'[\-\s]`s', $val) > 0) === $match['match']);
 								if ($res) break 1; else break 2;
 							case '~=':
 							case 'contains_word':
-								$res = ((preg_match('`\b'.preg_quote($match['value']).'\b`s', $val) > 0) === $match['match']);
+								$res = ((preg_match('`\s'.preg_quote($match['value']).'\s`s', " $val ") > 0) === $match['match']);
 								if ($res) break 1; else break 2;
 							case '*=':
 							case 'contains':
@@ -1785,7 +1785,7 @@ class HTML_Node {
 		return $this->getChildrenByAttribute('id', $id, 'equals', 'total', $recursive);
 	}
 	function getChildrenByClass($class, $recursive = true) {
-		return $this->getChildrenByAttribute('class', $id, 'equals', 'total', $recursive);
+		return $this->getChildrenByAttribute('class', $class, 'equals', 'total', $recursive);
 	}
 	function getChildrenByName($name, $recursive = true) {
 		return $this->getChildrenByAttribute('name', $name, 'equals', 'total', $recursive);
