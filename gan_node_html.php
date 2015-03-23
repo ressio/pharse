@@ -310,7 +310,7 @@ class HTML_Node {
 	 * @access private
 	 */
 	function __unset($attribute) {
-		return $this->deleteAttribute($attribute);
+		$this->deleteAttribute($attribute);
 	}
 
 	/**
