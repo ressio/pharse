@@ -1,8 +1,14 @@
 <?php
 /**
+ * @author RESS.IO Team
+ * @package Pharse
+ * @link https://github.com/ressio/pharse
+ *
+ * FORKED FROM
  * @author Niels A.D.
  * @package Ganon
  * @link http://code.google.com/p/ganon/
+ *
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
  
