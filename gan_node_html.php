@@ -1481,7 +1481,7 @@ class HTML_Node {
 		}
 		$class = $this->class;
 		foreach ($className as $c) {
-			$class = reg_replace('`\b'.preg_quote($c).'\b`si', '', $class);
+			$class = preg_replace('`\b'.preg_quote($c).'\b`si', '', $class);
 		}
 		if ($class) {
 			$this->class = $class;
