@@ -687,11 +687,11 @@ class HTML_Node {
 			//	}
 			//}
 			
-			foreach(array_keys($this->parent->children) as $k) {
-				if (!$this->parent->children[$k]->isTextOrComment()) {
+			foreach($this->parent->children as $children) {
+				if (!$children->isTextOrComment()) {
 					++$index;
 				}
-				if ($this->parent->children[$k] === $this) {
+				if ($children === $this) {
 					return $index;
 				}
 			}
@@ -731,11 +731,11 @@ class HTML_Node {
 			//	}
 			//}
 			
-			foreach(array_keys($this->parent->children) as $k) {
-				if (strcasecmp($this->tag, $this->parent->children[$k]->tag) === 0) {
+			foreach($this->parent->children as $children) {
+				if (strcasecmp($this->tag, $children->tag) === 0) {
 					++$index;
 				}
-				if ($this->parent->children[$k] === $this) {
+				if ($children === $this) {
 					return $index;
 				}
 			}
@@ -901,8 +901,8 @@ class HTML_Node {
 			//	}
 			//}
 			
-			foreach(array_keys($this->children) as $k) {
-				if (!$this->children[$k]->isTextOrComment()) {
+			foreach($this->children as $children) {
+				if (!$children->isTextOrComment()) {
 					++$count;
 				}
 			}
@@ -953,12 +953,12 @@ class HTML_Node {
 			//	}
 			//}
 			
-			foreach(array_keys($this->children) as $k) {
-				if (!$this->children[$k]->isTextOrComment()) {
+			foreach($this->children as $children) {
+				if (!$children->isTextOrComment()) {
 					if ($count++ === $child) {
-						return $this->children[$k];
+						return $children;
 					}
-					$last = $this->children[$k];
+					$last = $children;
 				}
 			}
 			return (($child > $count) ? $last : null);
