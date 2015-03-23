@@ -1459,7 +1459,7 @@ class HTML_Node {
 	 * @return bool
 	 */
 	function hasClass($className) {
-		return ($className && preg_match('`\b'.preg_quote($className, '`').'\b`si', $this->class));
+		return ($className && preg_match('`(?:^|\s)'.preg_quote($className, '`').'(?:$|\s)`si', $this->class));
 	}
 
 	/**
@@ -1470,7 +1470,7 @@ class HTML_Node {
 		$className = (array)$className;
 		$class = $this->class;
 		foreach ($className as $c) {
-			if (!(preg_match('`\b'.preg_quote($c, '`').'\b`si', $class) > 0)) {
+			if (!(preg_match('`(?:^|\s)'.preg_quote($c, '`').'(?:$|\s)`si', $class) > 0)) {
 				$class .= ' '.$c;
 			}
 		}
@@ -1485,7 +1485,7 @@ class HTML_Node {
 		$className = (array)$className;
 		$class = $this->class;
 		foreach ($className as $c) {
-			$class = preg_replace('`\b'.preg_quote($c, '`').'\b\s*`si', '', $class);
+			$class = preg_replace('`(^|\s)'.preg_quote($c, '`').'(?:$|\s+)`si', '\1', $class);
 		}
 		if ($class) {
 			$this->class = $class;
