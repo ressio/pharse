@@ -924,7 +924,7 @@ class HTML_Node {
 	 * @return bool
 	 */
 	function hasChild($child) {
-		return ((bool) findChild($child));
+		return ((bool) $this->findChild($child));
 	}
 
 	/**
