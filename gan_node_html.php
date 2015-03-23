@@ -1405,7 +1405,8 @@ class HTML_Node {
 	 */
 	function setAttribute($attr, $val, $compare = 'total', $case_sensitive = false) {
 		if ($val === null) {
-			return $this->deleteAttribute($attr, $compare, $case_sensitive);
+			$this->deleteAttribute($attr, $compare, $case_sensitive);
+			return;
 		}
 
 		$f = $this->findAttribute($attr, $compare, $case_sensitive);
