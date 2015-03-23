@@ -742,7 +742,7 @@ class HTML_Parser extends HTML_Parser_Base
 
         //end($this->hierarchy)->addXML('php', $this->status['text']);
         $index = null; //Needs to be passed by ref
-        $this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text'], $index);
+        $this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text'], array(), $index);
         return true;
     }
 
@@ -754,7 +754,7 @@ class HTML_Parser extends HTML_Parser_Base
 
         //end($this->hierarchy)->addASP('', $this->status['text']);
         $index = null; //Needs to be passed by ref
-        $this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text'], $index);
+        $this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text'], array(), $index);
         return true;
     }
 
