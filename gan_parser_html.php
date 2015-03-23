@@ -225,7 +225,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	 * @return bool
 	 */
 	function parse_style() {
-		if ($this->parse_attributes() && ($this->token === self::TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_pos('</style>', false) === self::TOK_UNKNOWN)) {
+		if ($this->parse_attributes() && ($this->token === self::TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_ipos('</style>', false) === self::TOK_UNKNOWN)) {
 			$len = $this->pos - 1 - $start;
 			$this->status['text'] = (($len > 0) ? substr($this->doc, $start + 1, $len) : '');
 
@@ -244,7 +244,7 @@ class HTML_Parser_Base extends Tokenizer_Base {
 	 * @return bool
 	 */
 	function parse_script() {
-		if ($this->parse_attributes() && ($this->token === self::TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_pos('</script>', false) === self::TOK_UNKNOWN)) {
+		if ($this->parse_attributes() && ($this->token === self::TOK_TAG_CLOSE) && ($start = $this->pos) && ($this->next_ipos('</script>', false) === self::TOK_UNKNOWN)) {
 			$len = $this->pos - 1 - $start;
 			$this->status['text'] = (($len > 0) ? substr($this->doc, $start + 1, $len) : '');
 

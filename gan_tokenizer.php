@@ -486,7 +486,7 @@ class Tokenizer_Base {
 	 */
 	function next_pos($needle, $callback = true) {
 		$this->token_start = $this->pos;
-		if (($this->pos < $this->size) && (($p = stripos($this->doc, $needle, $this->pos + 1)) !== false)) {
+		if (($this->pos < $this->size) && (($p = strpos($this->doc, $needle, $this->pos + 1)) !== false)) {
 
 			$len = $p - $this->pos - 1;
 			if ($len > 0) {
@@ -520,6 +520,48 @@ class Tokenizer_Base {
 		}
 	}
 	
+	/**
+	 * Finds the next token by searching for a string (case-independent)
+	 * @param string $needle The needle that's being searched for
+	 * @param bool $callback Should the function check the charmap after finding the needle?
+	 * @return int Next token ({@link TOK_NULL} if none)
+	 */
+	function next_ipos($needle, $callback = true) {
+		$this->token_start = $this->pos;
+		if (($this->pos < $this->size) && (($p = stripos($this->doc, $needle, $this->pos + 1)) !== false)) {
+
+			$len = $p - $this->pos - 1;
+			if ($len > 0) {
+				$str = substr($this->doc, $this->pos + 1, $len);
+
+				if (($l = strrpos($str, "\n")) !== false) {
+					++$this->line_pos[0];
+					$this->line_pos[1] = $l + $this->pos + 1;
+
+					$len -= $l;
+					if ($len > 0) {
+						$str = substr($str, 0, -$len);
+						$this->line_pos[0] += substr_count($str, "\n");
+					}
+				}
+			}
+
+			$this->pos = $p;
+			if ($callback && isset($this->char_map[$this->doc[$this->pos]])) {
+				if (is_string($this->char_map[$this->doc[$this->pos]])) {
+					return ($this->token = $this->{$this->char_map[$this->doc[$this->pos]]}());
+				} else {
+					return ($this->token = $this->char_map[$this->doc[$this->pos]]);
+				}
+			} else {
+				return ($this->token = self::TOK_UNKNOWN);
+			}
+		} else {
+			$this->pos = $this->size;
+			return ($this->token = self::TOK_NULL);
+		}
+	}
+
 	/**
 	 * Expect a specific token or character. Adds error if token doesn't match.
 	 * @param string|int $token Character or token to expect
