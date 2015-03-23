@@ -494,7 +494,7 @@ class HTML_Parser extends HTML_Parser_Base {
 	/**
 	 * Current parsing hierarchy
 	 * @internal Root is always at index 0, current tag is at the end of the array
-	 * @var array
+	 * @var HTML_Node[]
 	 * @access private
 	 */
 	var $hierarchy = array();

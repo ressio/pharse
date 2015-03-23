@@ -148,7 +148,7 @@ class HTML_Node {
 
 	/**
 	 * Array of childnodes
-	 * @var array
+	 * @var HTML_Node[]
 	 * @internal Public for faster access!
 	 * @see childCount()
 	 * @see getChild()
@@ -307,6 +307,7 @@ class HTML_Node {
 
 	/**
 	 * Class magic unset method, performs {@link deleteAttribute()}
+	 * @param string $attribute
 	 * @access private
 	 */
 	function __unset($attribute) {
@@ -371,7 +372,7 @@ class HTML_Node {
 	 * Returns the node as string
 	 * @param bool $attributes Print attributes (of child tags)
 	 * @param bool|int $recursive How many sublevels of childtags to print. True for all.
-	 * @param bool $content_only Only print text, false will print tags too.
+	 * @param bool|int $content_only Only print text, false will print tags too.
 	 * @return string
 	 */
 	function toString($attributes = true, $recursive = true, $content_only = false) {
@@ -1921,7 +1922,7 @@ class HTML_Node {
 	 * false to return array, int to return match at index, negative int to count from end
 	 * @param bool|int $recursive
 	 * @param bool $check_self Include this node in search or only search childnodes
-	 * @return array|HTML_Node
+	 * @return HTML_Node[]|HTML_Node
 	 */
 	function select($query = '*', $index = false, $recursive = true, $check_self = false) {
 		$s = new $this->selectClass($this, $query, $check_self, $recursive);

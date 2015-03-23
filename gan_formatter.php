@@ -139,6 +139,8 @@ class HTML_Formatter {
 
 	/**
 	 * Class magic invoke method, performs {@link format()}
+	 * @param HTML_Node $node
+	 * @return string
 	 * @access private
 	 */
 	function __invoke(&$node) {
