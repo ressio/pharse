@@ -838,7 +838,7 @@ class HTML_Parser_HTML5 extends HTML_Parser {
 			}
 		}
 
-		return parent::parse_hierarchy($self_close);
+		parent::parse_hierarchy($self_close);
 	}
 }
 
