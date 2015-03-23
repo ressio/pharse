@@ -16,7 +16,7 @@
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
 
-include_once('../ganon.php');
+include_once('../pharse.php');
 //PHP4 users, make sure this path is correct!
 
 $html = file_get_dom('http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml');

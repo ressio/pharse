@@ -16,7 +16,7 @@
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
 
-include_once('../ganon.php');
+include_once('../pharse.php');
 //PHP4 users, make sure this path is correct!
 
 header( 'Content-Type: text/html; charset=UTF-8' );

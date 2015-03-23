@@ -20,7 +20,7 @@
 <h1>Minified HTML:</h1>
 
 <?php
-	include_once('../ganon.php');
+	include_once('../pharse.php');
 	//PHP4 users, make sure this path is correct!
 
 	//Only keep everything between body tags, delete the rest.
