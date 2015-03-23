@@ -2521,7 +2521,7 @@ class HTML_NODE_XML extends HTML_NODE_EMBEDDED {
 	 * @param array $attributes array('attr' => 'val')
 	 */
 	function __construct($parent, $tag = 'xml', $text = '', $attributes = array()) {
-		return parent::__construct($parent, '?', $tag, $text, $attributes);
+		parent::__construct($parent, '?', $tag, $text, $attributes);
 	}
 	
 	#php4 PHP4 class constructor compatibility
@@ -2548,7 +2548,7 @@ class HTML_NODE_ASP extends HTML_NODE_EMBEDDED {
 	 * @param array $attributes array('attr' => 'val')
 	 */
 	function __construct($parent, $tag = '', $text = '', $attributes = array()) {
-		return parent::__construct($parent, '%', $tag, $text, $attributes);
+		parent::__construct($parent, '%', $tag, $text, $attributes);
 	}
 	
 	#php4 PHP4 class constructor compatibility
