@@ -1461,9 +1461,7 @@ class HTML_Node {
 	 * @param string|array $className
 	 */
 	function addClass($className) {
-		if (!is_array($className)) {
-			$className = array($className);
-		}
+		$className = (array)$className;
 		$class = $this->class;
 		foreach ($className as $c) {
 			if (!(preg_match('`\b'.preg_quote($c).'\b`si', $class) > 0)) {
@@ -1478,9 +1476,7 @@ class HTML_Node {
 	 * @param string|array $className
 	 */
 	function removeClass($className) {
-		if (!is_array($className)) {
-			$className = array($className);
-		}
+		$className = (array)$className;
 		$class = $this->class;
 		foreach ($className as $c) {
 			$class = preg_replace('`\b'.preg_quote($c).'\b`si', '', $class);
