@@ -525,7 +525,7 @@ class HTML_Node {
 	function clear() {
 		foreach($this->children as $c) {
 			$c->parent = null;
-			$c->delete();
+			//$c->delete();
 		}
 		$this->children = array();
 	}
