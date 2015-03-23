@@ -19,7 +19,7 @@ function str_get_dom($str, $return_root = true) {
 
 /**
  * Returns HTML DOM from file/website
- * @param string $str
+ * @param string $file
  * @param bool $return_root Return root node or return parser object
  * @param bool $use_include_path Use include path search in file_get_contents
  * @param resource $context Context resource used in file_get_contents (PHP >= 5.0.0)
