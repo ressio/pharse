@@ -488,7 +488,7 @@ class HTML_Selector {
 					if ($tok === Tokenizer_CSSQuery::TOK_ALL) {
 						$tok = $p->next();
 						if ($tok === Tokenizer_CSSQuery::TOK_PIPE) {
-							$this->next();
+							$tok = $p->next();
 							$compare = 'name';
 							if (($tag = $this->parse_getIdentifier()) === false) {
 								return false;
