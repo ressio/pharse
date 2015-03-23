@@ -547,6 +547,7 @@ class HTML_Parser extends HTML_Parser_Base {
 
 	/**
 	 * Class magic invoke method, performs {@link select()}
+	 * @param string $query
 	 * @return array
 	 * @access private
 	 */
@@ -565,8 +566,12 @@ class HTML_Parser extends HTML_Parser_Base {
 
 	/**
 	 * Performs a css select query on the root node
-	 * @see HTML_Node::select()
+	 * @param string $query
+	 * @param int|bool $index
+	 * @param bool $recursive
+	 * @param bool $check_self
 	 * @return array
+	 * @see HTML_Node::select()
 	 */
 	function select($query = '*', $index = false, $recursive = true, $check_self = false) {
 		return $this->root->select($query, $index, $recursive, $check_self);

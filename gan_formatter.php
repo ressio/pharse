@@ -352,7 +352,8 @@ class HTML_Formatter {
 
 	/**
 	 * Formats HTML/Javascript
-	 * @param HTML_Node $root
+	 * @param HTML_Node $node
+	 * @return string
 	 * @see format_html()
 	 */
 	function format(&$node) {

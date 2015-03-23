@@ -277,6 +277,7 @@ class HTML_Node {
 
 	/**
 	 * Class magic get method, outputs {@link getAttribute()}
+	 * @param string $attribute
 	 * @return string
 	 * @access private
 	 */
@@ -286,6 +287,8 @@ class HTML_Node {
 
 	/**
 	 * Class magic set method, performs {@link setAttribute()}
+	 * @param string $attribute
+	 * @param mixed $value
 	 * @access private
 	 */
 	function __set($attribute, $value) {
@@ -294,6 +297,7 @@ class HTML_Node {
 
 	/**
 	 * Class magic isset method, returns {@link hasAttribute()}
+	 * @param string $attribute
 	 * @return bool
 	 * @access private
 	 */
@@ -311,6 +315,10 @@ class HTML_Node {
 
 	/**
 	 * Class magic invoke method, performs {@link select()}
+	 * @param string $query
+	 * @param int|bool $index
+	 * @param bool $recursive
+	 * @param bool $check_self
 	 * @return array
 	 * @access private
 	 */
@@ -1010,7 +1018,7 @@ class HTML_Node {
 	/**
 	 * Insert childnode
 	 * @param string|HTML_Node $tag Tagname or object
-	 * @param int $offset Position to insert node, negative to count from end, null to append
+	 * @param int $index Position to insert node, negative to count from end, null to append
 	 * @return HTML_Node Added node
 	 * @see addChild();
 	 */
@@ -1391,6 +1399,7 @@ class HTML_Node {
 	/**
 	 * Sets value(s) of attribute(s)
 	 * @param string|int $attr Negative int to count from end
+	 * @param string $val
 	 * @param string $compare Find node using "namespace", "name" or "total"
 	 * @param bool $case_sensitive Compare with case sensitivity
 	 */
@@ -1516,10 +1525,10 @@ class HTML_Node {
 	
 	/**
 	 * Finds children using the {$link match()} function
-	 * @param $conditions See {$link match()}
-	 * @param $custom_filters See {$link match()}
+	 * @param array $conditions See {$link match()}
 	 * @param bool|int $recursive Check recursively
 	 * @param bool $check_self Include this node in search?
+	 * @param array $custom_filters See {$link match()}
 	 * @return array
 	 */
 	function getChildrenByMatch($conditions, $recursive = true, $check_self = false, $custom_filters = array()) {
@@ -1741,7 +1750,7 @@ class HTML_Node {
 
 	/**
 	 * Checks if node matches certain filters
-	 * @param array $tags array(array(
+	 * @param array $conditions array(array(
 	 *	'filter' => 'last-child',
 	 *	'params' => '123'))
 	 * @param array $custom_filters Custom map next to {@link $filter_map}

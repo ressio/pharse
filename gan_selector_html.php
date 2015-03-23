@@ -361,6 +361,7 @@ class HTML_Selector {
 
 	/**
 	 * Class magic invoke method, performs {@link select()}
+	 * @param string $query
 	 * @return array
 	 * @access private
 	 */
