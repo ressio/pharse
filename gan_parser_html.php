@@ -11,14 +11,10 @@
  *
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
- 
-#!! <- Ignore when converting to single file
-if (!defined('GANON_NO_INCLUDES')) {
-	include_once('gan_tokenizer.php');
-	include_once('gan_node_html.php');
-	include_once('gan_selector_html.php');
-}
-#!
+
+include_once('gan_tokenizer.php');
+include_once('gan_node_html.php');
+include_once('gan_selector_html.php');
 
 /**
  * Parses a HTML document
@@ -85,10 +81,6 @@ class HTML_Parser_Base extends Tokenizer_Base {
 		parent::__construct($doc, $pos);
 		$this->parse_all();
 	}
-	
-	#php4 PHP4 class constructor compatibility
-	#function HTML_Parser_Base($doc = '', $pos = 0) {return $this->__construct($doc, $pos);}
-	#php4e
 
 	/**
 	 Callback functions for certain tags
@@ -546,10 +538,6 @@ class HTML_Parser extends HTML_Parser_Base {
 
 		parent::__construct($doc, $pos);
 	}
-	
-	#php4 PHP4 class constructor compatibility
-	#function HTML_Parser($doc = '', $pos = 0, $root = null) {return $this->__construct($doc, $pos, $root);}
-	#php4e
 
 	/**
 	 * Class magic invoke method, performs {@link select()}
@@ -847,5 +835,3 @@ class HTML_Parser_HTML5 extends HTML_Parser {
 		parent::parse_hierarchy($self_close);
 	}
 }
-
-?>

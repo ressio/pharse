@@ -11,12 +11,8 @@
  *
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
- 
-#!! <- Ignore when converting to single file
-if (!defined('GANON_NO_INCLUDES')) {
-	include_once('gan_parser_html.php');
-}
-#!
+
+include_once('gan_parser_html.php');
 
 /**
  * Tokenizes a css selector query
@@ -351,10 +347,6 @@ class HTML_Selector {
 
 		$this->select($query);
 	}
-	
-	#php4 PHP4 class constructor compatibility
-	#function HTML_Selector($root, $query = '*', $search_root = false, $search_recursive = true, $parser = null) {return $this->__construct($root, $query, $search_root, $search_recursive, $parser);}
-	#php4e
 
 	/**
 	 * toString method, returns {@link $query}
@@ -943,5 +935,3 @@ class HTML_Selector {
 		return true;
 	}
 }
-
-?>

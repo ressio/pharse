@@ -173,10 +173,6 @@ class Tokenizer_Base {
 
 		$this->setDoc($doc, $pos);
 	}
-	
-	#php4 PHP4 class constructor compatibility
-	#function Tokenizer_Base($doc = '', $pos = 0) {return $this->__construct($doc, $pos);}
-	#php4e
 
 	/**
 	 * Sets target document
@@ -607,5 +603,3 @@ class Tokenizer_Base {
 		return true;
 	}
 }
-
-?>

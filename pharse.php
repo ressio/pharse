@@ -28,17 +28,11 @@ function str_get_dom($str, $return_root = true) {
  * @param string $file
  * @param bool $return_root Return root node or return parser object
  * @param bool $use_include_path Use include path search in file_get_contents
- * @param resource $context Context resource used in file_get_contents (PHP >= 5.0.0)
+ * @param resource $context Context resource used in file_get_contents
  * @return HTML_Parser_HTML5|HTML_Node
  */
 function file_get_dom($file, $return_root = true, $use_include_path = false, $context = null) {
-	if (version_compare(PHP_VERSION, '5.0.0', '>='))
-		$f = file_get_contents($file, $use_include_path, $context);
-	else {
-		if ($context !== null)
-			trigger_error('Context parameter not supported in this PHP version');
-		$f = file_get_contents($file, $use_include_path);
-	}
+	$f = file_get_contents($file, $use_include_path, $context);
 	
 	return (($f === false) ? false : str_get_dom($f, $return_root));
 }
@@ -52,23 +46,6 @@ function file_get_dom($file, $return_root = true, $use_include_path = false, $co
 function dom_format(&$root, $options = array()) {
 	$formatter = new HTML_Formatter($options);
 	return $formatter->format($root);
-}
-
-if (version_compare(PHP_VERSION, '5.0.0', '<')) {
-	/**
-	 * PHP alternative to str_split, for backwards compatibility
-	 * @param string $string
-	 * @return string
-	 */
-	function str_split($string) {
-		$res = array();
-		$size = strlen($string);
-		for ($i = 0; $i < $size; $i++) {
-			$res[] = $string[$i];
-		}
-		
-		return $res;
-	}
 }
 
 if (version_compare(PHP_VERSION, '5.2.0', '<')) {
@@ -88,15 +65,8 @@ if (version_compare(PHP_VERSION, '5.2.0', '<')) {
 	}
 }
 
-#!! <- Ignore when converting to single file
-if (!defined('GANON_NO_INCLUDES')) {
-	define('GANON_NO_INCLUDES', true);
-	include_once('gan_tokenizer.php');
-	include_once('gan_parser_html.php');
-	include_once('gan_node_html.php');
-	include_once('gan_selector_html.php');
-	include_once('gan_formatter.php');
-}
-#!
-
-?>
+include_once('gan_tokenizer.php');
+include_once('gan_parser_html.php');
+include_once('gan_node_html.php');
+include_once('gan_selector_html.php');
+include_once('gan_formatter.php');

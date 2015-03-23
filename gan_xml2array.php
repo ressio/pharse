@@ -11,12 +11,8 @@
  *
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
- 
-#!! <- Ignore when converting to single file
-if (!defined('GANON_NO_INCLUDES')) {
-	include_once('gan_parser_html.php');
-}
-#!
+
+include_once('gan_parser_html.php');
 
 /**
  * Converts a XML document to an array
@@ -106,5 +102,3 @@ class XML_Parser_Array extends HTML_Parser_Base {
 		return ((parent::parse_all()) ? $this->root : false);
 	}
 }
-
-?>

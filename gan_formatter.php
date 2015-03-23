@@ -138,10 +138,6 @@ class HTML_Formatter {
 	function __construct($options = array()) {
 		$this->options = array_merge($this->options, $options);
 	}
-	
-	#php4 PHP4 class constructor compatibility
-	#function HTML_Formatter($options = array()) {return $this->__construct($options);}
-	#php4e
 
 	/**
 	 * Class magic invoke method, performs {@link format()}
@@ -185,10 +181,6 @@ class HTML_Formatter {
 	 * @return bool|array Array of errors on failure, true on succes
 	 */
 	static function minify_javascript(&$root, $indent_string = ' ', $wrap_comment = true, $recursive = true) {
-	#php4 JSMin+ doesn't support PHP4
-	#return true;
-	#php4e
-	#php5
 		include_once('third party/jsminplus.php');
 
 		$errors = array();
@@ -230,7 +222,6 @@ class HTML_Formatter {
 		}
 
 		return (($errors) ? $errors : true);
-	#php5e
 	}
 
 	/**
@@ -377,5 +368,3 @@ class HTML_Formatter {
 		return $this->format_html($node);
 	}
 }
-
-?>
