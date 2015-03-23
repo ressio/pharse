@@ -1781,8 +1781,8 @@ class HTML_Node {
 
 	/**
 	 * Checks if node matches certain conditions
-	 * @param array $tags array('tags' => array(tag_conditions), 'attributes' => array(attr_conditions), 'filters' => array(filter_conditions))
-	 * @param array $match Should conditions evaluate to true?
+	 * @param array $conditions array('tags' => array(tag_conditions), 'attributes' => array(attr_conditions), 'filters' => array(filter_conditions))
+	 * @param bool $match Should conditions evaluate to true?
 	 * @param array $custom_filters Custom map next to {@link $filter_map}
 	 * @return bool
 	 * @internal Used by selector class
@@ -2044,6 +2044,7 @@ class HTML_Node {
 
 	/**
 	 * Checks if node matches css query filter ":every(n)"
+	 * @param int $n
 	 * @return bool
 	 * @see match()
 	 * @access private
