@@ -19,7 +19,7 @@
 include_once('../pharse.php');
 
 /** @var HTML_Node $html */
-$html = file_get_dom('http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml');
+$html = Pharse::file_get_dom('http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml');
 
 
 if (version_compare(PHP_VERSION, '5.3.0') >= 0) {

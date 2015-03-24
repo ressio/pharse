@@ -19,7 +19,7 @@
 include_once('../pharse.php');
 
 /** @var HTML_Node $html */
-$html = file_get_dom('http://villavu.com/forum/');
+$html = Pharse::file_get_dom('http://villavu.com/forum/');
 
 
 if (version_compare(PHP_VERSION, '5.3.0') >= 0) {

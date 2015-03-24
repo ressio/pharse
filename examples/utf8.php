@@ -22,7 +22,7 @@ header('Content-Type: text/html; charset=UTF-8');
 //Make sure the header is set for UTF8 output
 
 /** @var HTML_Node $html */
-$html = file_get_dom('_html5_utf.html');
+$html = Pharse::file_get_dom('_html5_utf.html');
 
 if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
     //PHP 5.3.0 and higher

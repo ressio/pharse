@@ -20,7 +20,7 @@
 include_once('../pharse.php');
 
 /** @var HTML_Node $html */
-$html = file_get_dom('http://code.google.com/p/ganon/w/list');
+$html = Pharse::file_get_dom('http://code.google.com/p/ganon/w/list');
 
 
 if (version_compare(PHP_VERSION, '5.3.0') >= 0) {

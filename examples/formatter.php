@@ -24,7 +24,7 @@ include_once('../pharse.php');
 
 //Only keep everything between body tags, delete the rest.
 /** @var HTML_Node $html */
-$html = file_get_dom('http://m.nos.nl');
+$html = Pharse::file_get_dom('http://m.nos.nl');
 $html->select('"!DOCTYPE"', 0)->delete();
 $html->select('head', 0)->delete();
 $html->select('body', 0)->detach(true);

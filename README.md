@@ -31,7 +31,7 @@ Pharse is:
 include('path/pharse.php');
 
 // Parse the google code website into a DOM
-$html = file_get_dom('http://code.google.com/');
+$html = Pharse::file_get_dom('http://code.google.com/');
 ```
 After including Pharse and loading the DOM, it is time to get started.
 
@@ -87,7 +87,7 @@ echo $html;
 Pharse can also help you beautify your code and format it properly.
 ```php
 // Beautify the old HTML code and print out the new, formatted code
-dom_format($html, array('attributes_case' => CASE_LOWER));
+Pharse::dom_format($html, array('attributes_case' => CASE_LOWER));
 echo $html;
 ```
 
