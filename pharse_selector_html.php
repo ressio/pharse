@@ -939,7 +939,7 @@ class HTML_Selector
                 case Tokenizer_CSSQuery::TOK_ID:
                 case Tokenizer_CSSQuery::TOK_CLASS:
                 case Tokenizer_CSSQuery::TOK_COLON:
-                    if (!$this->parse_result()) {
+                    if (!$this->parse_result(!$p->whitespace_skipped)) {
                         return false;
                     }
                     break;

@@ -100,6 +100,13 @@ class Tokenizer_Base
     public $token = self::TOK_NULL;
 
     /**
+     * Flag of skipped whitespaces before current token
+     * @var bool
+     * @see next_no_whitespace()
+     */
+    public $whitespace_skipped = false;
+
+    /**
      * Startposition of token. If NULL, then current position is used.
      * @var int
      * @internal Public for faster access!
@@ -449,6 +456,7 @@ class Tokenizer_Base
      */
     public function next_no_whitespace()
     {
+        $this->whitespace_skipped = false;
         $this->token_start = null;
 
         while (++$this->pos < $this->size) {
@@ -463,6 +471,7 @@ class Tokenizer_Base
                     return ($this->token = self::TOK_UNKNOWN);
                 }
             } else {
+                $this->whitespace_skipped = true;
                 $this->parse_linebreak();
             }
         }
