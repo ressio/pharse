@@ -24,7 +24,7 @@ class XML_Parser_Array extends HTML_Parser_Base
      * Holds the document structure
      * @var array array('name' => 'tag', 'attrs' => array('attr' => 'val'), 'childen' => array())
      */
-    protected $root = array(
+    public $root = array(
         'name' => '',
         'attrs' => array(),
         'children' => array()
