@@ -69,8 +69,8 @@ if (version_compare(PHP_VERSION, '5.2.0', '<')) {
     }
 }
 
-include_once('gan_tokenizer.php');
-include_once('gan_parser_html.php');
-include_once('gan_node_html.php');
-include_once('gan_selector_html.php');
-include_once('gan_formatter.php');
+include_once('pharse_tokenizer.php');
+include_once('pharse_parser_html.php');
+include_once('pharse_node_html.php');
+include_once('pharse_selector_html.php');
+include_once('pharse_formatter.php');

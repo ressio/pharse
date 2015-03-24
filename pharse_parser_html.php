@@ -12,9 +12,9 @@
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
 
-include_once('gan_tokenizer.php');
-include_once('gan_node_html.php');
-include_once('gan_selector_html.php');
+include_once('pharse_tokenizer.php');
+include_once('pharse_node_html.php');
+include_once('pharse_selector_html.php');
 
 /**
  * Parses a HTML document
@@ -596,7 +596,7 @@ class HTML_Parser extends HTML_Parser_Base
     /**
      * Updates the current hierarchy status and checks for
      * correct opening/closing of tags
-     * @param bool $self_close Is current tag self closing? Null to use {@link tags_selfclose}
+     * @param bool|null $self_close Is current tag self closing? Null to use {@link tags_selfclose}
      * @internal This is were most of the nodes get added
      * @access private
      */

@@ -12,7 +12,7 @@
  * @license http://dev.perl.org/licenses/artistic.html Artistic License
  */
 
-include_once('gan_parser_html.php');
+include_once('pharse_parser_html.php');
 
 /**
  * Converts a XML document to an array
