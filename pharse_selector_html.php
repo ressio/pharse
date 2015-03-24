@@ -879,12 +879,12 @@ class HTML_Selector
             return false;
         }
 
-        foreach ($tmp as $t => $tmp_t) {
-            $this->root = (($parent) ? $tmp_t->parent : $tmp_t);
+        foreach ($tmp as $t) {
+            $this->root = (($parent) ? $t->parent : $t);
             $this->parse_callback($c, $recursive);
-            foreach ($this->result as $r => $result_r) {
-                if (!in_array($result_r, $tmp_res, true)) {
-                    $tmp_res[] = $result_r;
+            foreach ($this->result as $r) {
+                if (!in_array($r, $tmp_res, true)) {
+                    $tmp_res[] = $r;
                 }
             }
         }
