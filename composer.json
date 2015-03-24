@@ -1,6 +1,6 @@
 {
     "name": "ressio/pharse",
-    "version": "0.2",
+    "version": "0.2.0",
     "type": "library",
     "description": "Fastest PHP HTML Parser",
     "keywords": ["dom", "html", "html5", "parser", "php"],
