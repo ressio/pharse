@@ -432,11 +432,12 @@ class Tokenizer_Base
         $this->token_start = null;
 
         if (++$this->pos < $this->size) {
-            if (isset($this->char_map[$this->doc[$this->pos]])) {
-                if (is_string($this->char_map[$this->doc[$this->pos]])) {
-                    return ($this->token = $this->{$this->char_map[$this->doc[$this->pos]]}());
+            $char = $this->doc[$this->pos];
+            if (isset($this->char_map[$char])) {
+                if (is_string($this->char_map[$char])) {
+                    return ($this->token = $this->{$this->char_map[$char]}());
                 } else {
-                    return ($this->token = $this->char_map[$this->doc[$this->pos]]);
+                    return ($this->token = $this->char_map[$char]);
                 }
             } else {
                 return ($this->token = self::TOK_UNKNOWN);
@@ -456,12 +457,13 @@ class Tokenizer_Base
         $this->token_start = null;
 
         while (++$this->pos < $this->size) {
-            if (!isset($this->whitespace[$this->doc[$this->pos]])) {
-                if (isset($this->char_map[$this->doc[$this->pos]])) {
-                    if (is_string($this->char_map[$this->doc[$this->pos]])) {
-                        return ($this->token = $this->{$this->char_map[$this->doc[$this->pos]]}());
+            $char = $this->doc[$this->pos];
+            if (!isset($this->whitespace[$char])) {
+                if (isset($this->char_map[$char])) {
+                    if (is_string($this->char_map[$char])) {
+                        return ($this->token = $this->{$this->char_map[$char]}());
                     } else {
-                        return ($this->token = $this->char_map[$this->doc[$this->pos]]);
+                        return ($this->token = $this->char_map[$char]);
                     }
                 } else {
                     return ($this->token = self::TOK_UNKNOWN);
@@ -491,12 +493,13 @@ class Tokenizer_Base
         }
 
         while (++$this->pos < $this->size) {
-            if (isset($characters[$this->doc[$this->pos]])) {
-                if ($callback && isset($this->char_map[$this->doc[$this->pos]])) {
-                    if (is_string($this->char_map[$this->doc[$this->pos]])) {
-                        return ($this->token = $this->{$this->char_map[$this->doc[$this->pos]]}());
+            $char = $this->doc[$this->pos];
+            if (isset($characters[$char])) {
+                if ($callback && isset($this->char_map[$char])) {
+                    if (is_string($this->char_map[$char])) {
+                        return ($this->token = $this->{$this->char_map[$char]}());
                     } else {
-                        return ($this->token = $this->char_map[$this->doc[$this->pos]]);
+                        return ($this->token = $this->char_map[$char]);
                     }
                 } else {
                     return ($this->token = self::TOK_UNKNOWN);
