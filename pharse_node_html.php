@@ -208,7 +208,7 @@ class HTML_Node
      * selector to call $this->filter_root at :root
      * @access private
      */
-    private $filter_map = array(
+    static private $filter_map = array(
         'root' => 'filter_root',
         'nth-child' => 'filter_nchild',
         'eq' => 'filter_nchild', //jquery (naming) compatibility
@@ -1751,8 +1751,8 @@ class HTML_Node
     {
         foreach ($conditions as $c) {
             $c['filter'] = strtolower($c['filter']);
-            if (isset($this->filter_map[$c['filter']])) {
-                if (!$this->{$this->filter_map[$c['filter']]}($c['params'])) {
+            if (isset(self::$filter_map[$c['filter']])) {
+                if (!$this->{self::$filter_map[$c['filter']]}($c['params'])) {
                     return false;
                 }
             } elseif (isset($custom_filters[$c['filter']])) {
