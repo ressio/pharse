@@ -240,6 +240,28 @@ class HTML_Node
     );
 
     /**
+     * Convert HTML4-like attributes (disabled="disabled") to HTML5 form (disabled)
+     * @var array
+     */
+    static protected $short_attributes = array(
+        'audio' => array('autoplay', 'loop', 'muted', 'controls'),
+        'button' => array('disabled'),
+        'fieldset' => array('disabled'),
+        'iframe' => array('sandbox'),
+        'img' => array('ismap'),
+        'input' => array('checked', 'disabled', 'multiple', 'readonly'),
+        'keygen' => array('disabled'),
+        'ol' => array('reversed'),
+        'optgroup' => array('disabled'),
+        'option' => array('disabled', 'selected'),
+        'script' => array('async', 'defer'),
+        'select' => array('disabled', 'multiple'),
+        'textarea' => array('disabled', 'readonly'),
+        'track' => array('default'),
+        'video' => array('autoplay', 'loop', 'muted', 'controls')
+    );
+
+    /**
      * Class constructor
      * @param string|array $tag Name of the tag, or array with taginfo (array(
      *    'tag_name' => 'tag',
@@ -355,7 +377,8 @@ class HTML_Node
         $s = '';
         foreach ($this->attributes as $a => $v) {
             $s .= ' ' . $a;
-            if ((!$this->attribute_shorttag) || ($v !== $a)) {
+            if (!$this->attribute_shorttag || ($v !== $a)
+                || !isset(self::$short_attributes[$this->tag], self::$short_attributes[$this->tag][$a])) {
                 $quote = (strpos($v, '"') === false) ? '"' : "'";
                 $s .= '=' . $quote . $v . $quote;
             }
