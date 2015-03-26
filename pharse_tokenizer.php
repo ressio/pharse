@@ -510,6 +510,30 @@ class Tokenizer_Base
     }
 
     /**
+     * @param int $pos
+     */
+    protected function update_pos($pos)
+    {
+        $len = $pos - $this->pos - 1;
+        if ($len > 0) {
+            $str = substr($this->doc, $this->pos + 1, $len);
+
+            if (($l = strrpos($str, "\n")) !== false) {
+                ++$this->line_pos[0];
+                $this->line_pos[1] = $l + $this->pos + 1;
+
+                $len -= $l;
+                if ($len > 0) {
+                    $str = substr($str, 0, -$len);
+                    $this->line_pos[0] += substr_count($str, "\n");
+                }
+            }
+        }
+
+        $this->pos = $pos;
+    }
+
+    /**
      * Finds the next token by searching for a string
      * @param string $needle The needle that's being searched for
      * @param bool $callback Should the function check the charmap after finding the needle?
@@ -520,28 +544,14 @@ class Tokenizer_Base
         $this->token_start = $this->pos;
         if (($this->pos < $this->size) && (($p = strpos($this->doc, $needle, $this->pos + 1)) !== false)) {
 
-            $len = $p - $this->pos - 1;
-            if ($len > 0) {
-                $str = substr($this->doc, $this->pos + 1, $len);
+            $this->update_pos($p);
 
-                if (($l = strrpos($str, "\n")) !== false) {
-                    ++$this->line_pos[0];
-                    $this->line_pos[1] = $l + $this->pos + 1;
-
-                    $len -= $l;
-                    if ($len > 0) {
-                        $str = substr($str, 0, -$len);
-                        $this->line_pos[0] += substr_count($str, "\n");
-                    }
-                }
-            }
-
-            $this->pos = $p;
-            if ($callback && isset($this->char_map[$this->doc[$this->pos]])) {
-                if (is_string($this->char_map[$this->doc[$this->pos]])) {
-                    return ($this->token = $this->{$this->char_map[$this->doc[$this->pos]]}());
+            $char = $this->doc[$this->pos];
+            if ($callback && isset($this->char_map[$char])) {
+                if (is_string($this->char_map[$char])) {
+                    return ($this->token = $this->{$this->char_map[$char]}());
                 } else {
-                    return ($this->token = $this->char_map[$this->doc[$this->pos]]);
+                    return ($this->token = $this->char_map[$char]);
                 }
             } else {
                 return ($this->token = self::TOK_UNKNOWN);
@@ -563,28 +573,14 @@ class Tokenizer_Base
         $this->token_start = $this->pos;
         if (($this->pos < $this->size) && (($p = stripos($this->doc, $needle, $this->pos + 1)) !== false)) {
 
-            $len = $p - $this->pos - 1;
-            if ($len > 0) {
-                $str = substr($this->doc, $this->pos + 1, $len);
+            $this->update_pos($p);
 
-                if (($l = strrpos($str, "\n")) !== false) {
-                    ++$this->line_pos[0];
-                    $this->line_pos[1] = $l + $this->pos + 1;
-
-                    $len -= $l;
-                    if ($len > 0) {
-                        $str = substr($str, 0, -$len);
-                        $this->line_pos[0] += substr_count($str, "\n");
-                    }
-                }
-            }
-
-            $this->pos = $p;
-            if ($callback && isset($this->char_map[$this->doc[$this->pos]])) {
-                if (is_string($this->char_map[$this->doc[$this->pos]])) {
-                    return ($this->token = $this->{$this->char_map[$this->doc[$this->pos]]}());
+            $char = $this->doc[$this->pos];
+            if ($callback && isset($this->char_map[$char])) {
+                if (is_string($this->char_map[$char])) {
+                    return ($this->token = $this->{$this->char_map[$char]}());
                 } else {
-                    return ($this->token = $this->char_map[$this->doc[$this->pos]]);
+                    return ($this->token = $this->char_map[$char]);
                 }
             } else {
                 return ($this->token = self::TOK_UNKNOWN);
