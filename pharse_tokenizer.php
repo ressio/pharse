@@ -378,13 +378,7 @@ class Tokenizer_Base
      */
     protected function parse_linebreak()
     {
-        if ($this->doc[$this->pos] === "\r") {
-            ++$this->line_pos[0];
-            if ((($this->pos + 1) < $this->size) && ($this->doc[$this->pos + 1] === "\n")) {
-                ++$this->pos;
-            }
-            $this->line_pos[1] = $this->pos;
-        } elseif ($this->doc[$this->pos] === "\n") {
+        if ($this->doc[$this->pos] === "\n") {
             ++$this->line_pos[0];
             $this->line_pos[1] = $this->pos;
         }
