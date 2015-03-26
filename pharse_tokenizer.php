@@ -391,12 +391,14 @@ class Tokenizer_Base
      */
     protected function parse_whitespace()
     {
+        $this->whitespace_skipped = false;
         $this->token_start = $this->pos;
 
         while (++$this->pos < $this->size) {
             if (!isset($this->whitespace[$this->doc[$this->pos]])) {
                 break;
             } else {
+                $this->whitespace_skipped = true;
                 $this->parse_linebreak();
             }
         }
