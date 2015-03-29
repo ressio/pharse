@@ -581,7 +581,7 @@ class HTML_Node
     {
         foreach ($this->children as $c) {
             $c->parent = null;
-            //$c->delete();
+            $c->delete();
         }
         $this->children = array();
     }
