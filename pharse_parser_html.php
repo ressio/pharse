@@ -561,6 +561,11 @@ class HTML_Parser extends HTML_Parser_Base
         parent::__construct($doc, $pos);
     }
 
+    public function __destruct()
+    {
+        unset($this->root);
+    }
+
     /**
      * Class magic invoke method, performs {@link select()}
      * @param string $query
