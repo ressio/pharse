@@ -378,7 +378,8 @@ class HTML_Node
         foreach ($this->attributes as $a => $v) {
             $s .= ' ' . $a;
             if (!$this->attribute_shorttag || ($v !== $a)
-                || !isset(self::$short_attributes[$this->tag], self::$short_attributes[$this->tag][$a])) {
+                || !isset(self::$short_attributes[$this->tag], self::$short_attributes[$this->tag][$a])
+            ) {
                 $quote = (strpos($v, '"') === false) ? '"' : "'";
                 $s .= '=' . $quote . $v . $quote;
             }
