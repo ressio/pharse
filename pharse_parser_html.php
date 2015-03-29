@@ -613,7 +613,6 @@ class HTML_Parser extends HTML_Parser_Base
             if ($this->status['closing_tag']) {
 
                 /** @var HTML_Node[] $c */
-                //$c = end($this->hierarchy)->children
                 $c = $this->hierarchy[count($this->hierarchy) - 1]->children;
                 $found = false;
                 for ($count = count($c), $i = $count - 1; $i >= 0; $i--) {
@@ -634,15 +633,12 @@ class HTML_Parser extends HTML_Parser_Base
                 }
 
             } elseif ($this->status['tag_name'][0] === '?') {
-                //end($this->hierarchy)->addXML($this->status['tag_name'], '', $this->status['attributes']);
                 $index = null; //Needs to be passed by ref
                 $this->hierarchy[count($this->hierarchy) - 1]->addXML($this->status['tag_name'], '', $this->status['attributes'], $index);
             } elseif ($this->status['tag_name'][0] === '%') {
-                //end($this->hierarchy)->addASP($this->status['tag_name'], '', $this->status['attributes']);
                 $index = null; //Needs to be passed by ref
                 $this->hierarchy[count($this->hierarchy) - 1]->addASP($this->status['tag_name'], '', $this->status['attributes'], $index);
             } else {
-                //end($this->hierarchy)->addChild($this->status);
                 $index = null; //Needs to be passed by ref
                 $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
             }
@@ -668,7 +664,6 @@ class HTML_Parser extends HTML_Parser_Base
             }
 
         } else {
-            //$this->hierarchy[] = end($this->hierarchy)->addChild($this->status);
             $index = null; //Needs to be passed by ref
             $this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
         }
@@ -680,7 +675,6 @@ class HTML_Parser extends HTML_Parser_Base
             return false;
         }
 
-        //end($this->hierarchy)->addCDATA($this->status['cdata']);
         $index = null; //Needs to be passed by ref
         $this->hierarchy[count($this->hierarchy) - 1]->addCDATA($this->status['cdata'], $index);
         return true;
@@ -692,7 +686,6 @@ class HTML_Parser extends HTML_Parser_Base
             return false;
         }
 
-        //end($this->hierarchy)->addComment($this->status['comment']);
         $index = null; //Needs to be passed by ref
         $this->hierarchy[count($this->hierarchy) - 1]->addComment($this->status['comment'], $index);
         return true;
@@ -705,7 +698,6 @@ class HTML_Parser extends HTML_Parser_Base
         }
 
         if ($this->status['comment']) {
-            //$e = end($this->hierarchy)->addConditional($this->status['tag_condition'], true);
             $index = null; //Needs to be passed by ref
             $e = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], true, $index);
             if ($this->status['text'] !== '') {
@@ -716,7 +708,6 @@ class HTML_Parser extends HTML_Parser_Base
             if ($this->status['closing_tag']) {
                 $this->parse_hierarchy(false);
             } else {
-                //$this->hierarchy[] = end($this->hierarchy)->addConditional($this->status['tag_condition'], false);
                 $index = null; //Needs to be passed by ref
                 $this->hierarchy[] = $this->hierarchy[count($this->hierarchy) - 1]->addConditional($this->status['tag_condition'], false, $index);
             }
@@ -731,7 +722,6 @@ class HTML_Parser extends HTML_Parser_Base
             return false;
         }
 
-        //end($this->hierarchy)->addDoctype($this->status['dtd']);
         $index = null; //Needs to be passed by ref
         $this->hierarchy[count($this->hierarchy) - 1]->addDoctype($this->status['dtd'], $index);
         return true;
@@ -743,7 +733,6 @@ class HTML_Parser extends HTML_Parser_Base
             return false;
         }
 
-        //end($this->hierarchy)->addXML('php', $this->status['text']);
         $index = null; //Needs to be passed by ref
         $this->hierarchy[count($this->hierarchy) - 1]->addXML('php', $this->status['text'], array(), $index);
         return true;
@@ -755,7 +744,6 @@ class HTML_Parser extends HTML_Parser_Base
             return false;
         }
 
-        //end($this->hierarchy)->addASP('', $this->status['text']);
         $index = null; //Needs to be passed by ref
         $this->hierarchy[count($this->hierarchy) - 1]->addASP('', $this->status['text'], array(), $index);
         return true;
@@ -767,7 +755,6 @@ class HTML_Parser extends HTML_Parser_Base
             return false;
         }
 
-        //$e = end($this->hierarchy)->addChild($this->status);
         $index = null; //Needs to be passed by ref
         $e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
         if ($this->status['text'] !== '') {
@@ -783,7 +770,6 @@ class HTML_Parser extends HTML_Parser_Base
             return false;
         }
 
-        //$e = end($this->hierarchy)->addChild($this->status);
         $index = null; //Needs to be passed by ref
         $e = $this->hierarchy[count($this->hierarchy) - 1]->addChild($this->status, $index);
         if ($this->status['text'] !== '') {
@@ -807,7 +793,6 @@ class HTML_Parser extends HTML_Parser_Base
     {
         parent::parse_text();
         if ($this->status['text'] !== '') {
-            //end($this->hierarchy)->addText($this->status['text']);
             $index = null; //Needs to be passed by ref
             $this->hierarchy[count($this->hierarchy) - 1]->addText($this->status['text'], $index);
         }
@@ -883,7 +868,6 @@ class HTML_Parser_HTML5 extends HTML_Parser
         }
 
         if (!($self_close || $this->status['closing_tag'])) {
-            //$tag_prev = strtolower(end($this->hierarchy)->tag);
             $tag_prev = strtolower($this->hierarchy[count($this->hierarchy) - 1]->tag);
             if (isset($this->tags_optional_close[$tag_curr], $this->tags_optional_close[$tag_curr][$tag_prev])) {
                 array_pop($this->hierarchy);

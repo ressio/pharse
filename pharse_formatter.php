@@ -299,7 +299,6 @@ class HTML_Formatter
 
                 if ($format_inside && count($n->children)) {
                     /** @var HTML_Node_Text $last */
-                    //$last = end($n->children);
                     $last = $n->children[count($n->children) - 1];
                     $last_tag = ($last) ? strtolower($last->tag) : '';
                     $last_asblock = ($last_tag && isset($this->block_elements[$last_tag]) && $this->block_elements[$last_tag]['as_block']);
