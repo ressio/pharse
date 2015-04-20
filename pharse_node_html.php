@@ -1150,6 +1150,9 @@ class HTML_Node
     {
         if (is_object($child)) {
             $child = $this->findChild($child);
+            if ($child === false) {
+                return;
+            }
         } elseif ($child < 0) {
             $child += count($this->children);
         }
