@@ -292,16 +292,16 @@ class HTML_Parser_Base extends Tokenizer_Base
 
         if ($this->status['comment']) {
             $this->status['last_pos'] = $this->pos;
-            if ($this->next_pos('-->', false) !== self::TOK_UNKNOWN) {
+            if ($this->next_pos('<![endif]-->', false) !== self::TOK_UNKNOWN) {
                 $this->addError('No ending tag found for conditional tag');
                 $this->pos = $this->size - 1;
 
                 $len = $this->pos - 1 - $this->status['last_pos'];
                 $this->status['text'] = (($len > 0) ? substr($this->doc, $this->status['last_pos'] + 1, $len) : '');
             } else {
-                $len = $this->pos - 10 - $this->status['last_pos'];
+                $len = $this->pos - 1 - $this->status['last_pos'];
                 $this->status['text'] = (($len > 0) ? substr($this->doc, $this->status['last_pos'] + 1, $len) : '');
-                $this->pos += 2;
+                $this->pos += 11;
             }
         }
 
