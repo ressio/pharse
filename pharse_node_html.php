@@ -244,21 +244,21 @@ class HTML_Node
      * @var array
      */
     static protected $short_attributes = array(
-        'audio' => array('autoplay', 'loop', 'muted', 'controls'),
-        'button' => array('disabled'),
-        'fieldset' => array('disabled'),
-        'iframe' => array('sandbox'),
-        'img' => array('ismap'),
-        'input' => array('checked', 'disabled', 'multiple', 'readonly'),
-        'keygen' => array('disabled'),
-        'ol' => array('reversed'),
-        'optgroup' => array('disabled'),
-        'option' => array('disabled', 'selected'),
-        'script' => array('async', 'defer'),
-        'select' => array('disabled', 'multiple'),
-        'textarea' => array('disabled', 'readonly'),
-        'track' => array('default'),
-        'video' => array('autoplay', 'loop', 'muted', 'controls')
+        'audio' => array('autoplay' => true, 'loop' => true, 'muted' => true, 'controls' => true),
+        'button' => array('disabled' => true),
+        'fieldset' => array('disabled' => true),
+        'iframe' => array('sandbox' => true),
+        'img' => array('ismap' => true),
+        'input' => array('checked' => true, 'disabled' => true, 'multiple' => true, 'readonly' => true),
+        'keygen' => array('disabled' => true),
+        'ol' => array('reversed' => true),
+        'optgroup' => array('disabled' => true),
+        'option' => array('disabled' => true, 'selected' => true),
+        'script' => array('async' => true, 'defer' => true),
+        'select' => array('disabled' => true, 'multiple' => true),
+        'textarea' => array('disabled' => true, 'readonly' => true),
+        'track' => array('default' => true),
+        'video' => array('autoplay' => true, 'loop' => true, 'muted' => true, 'controls' => true)
     );
 
     /**
