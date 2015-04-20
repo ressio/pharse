@@ -155,11 +155,11 @@ class HTML_Parser_Base extends Tokenizer_Base
     {
         $start = $this->pos;
         if ($this->next_search('[>', false) === self::TOK_UNKNOWN) {
-            if ($this->doc[$this->pos] === '[') {
-                if (($this->next_pos(']', false) !== self::TOK_UNKNOWN) || ($this->next_pos('>', false) !== self::TOK_UNKNOWN)) {
-                    $this->addError('Invalid doctype');
-                    return false;
-                }
+            if ($this->doc[$this->pos] === '['
+                && (($this->next_pos(']', false) !== self::TOK_UNKNOWN) || ($this->next_pos('>', false) !== self::TOK_UNKNOWN))
+            ) {
+                $this->addError('Invalid doctype');
+                return false;
             }
 
             $this->token_start = $start;
@@ -376,7 +376,9 @@ class HTML_Parser_Base extends Tokenizer_Base
             if ($this->token === self::TOK_SLASH_FORWARD) {
                 $this->status['self_close'] = true;
                 $this->next();
-            } elseif ((($this->status['tag_name'][0] === '?') && ($this->doc[$this->pos] === '?')) || (($this->status['tag_name'][0] === '%') && ($this->doc[$this->pos] === '%'))) {
+            } elseif ((($this->status['tag_name'][0] === '?') && ($this->doc[$this->pos] === '?'))
+                || (($this->status['tag_name'][0] === '%') && ($this->doc[$this->pos] === '%'))
+            ) {
                 $this->status['self_close'] = true;
                 $this->pos++;
 
@@ -386,8 +388,8 @@ class HTML_Parser_Base extends Tokenizer_Base
                     $this->token = self::TOK_UNKNOWN;
                 }
             }/* else {
-				$this->status['self_close'] = false;
-			}*/
+                $this->status['self_close'] = false;
+            }*/
         }
 
         if ($this->token !== self::TOK_TAG_CLOSE) {
@@ -452,7 +454,7 @@ class HTML_Parser_Base extends Tokenizer_Base
             $this->status['last_pos'] = $start - 1;
             return true;
             //} else {
-            //	return false;
+            //    return false;
             //}
         }
 
@@ -822,7 +824,7 @@ class HTML_Parser_HTML5 extends HTML_Parser
      * @access private
      */
     public $tags_optional_close = array(
-        //Current tag	=> Previous tag
+        //Current tag => Previous tag
         'li' => array('li' => true),
         'dt' => array('dt' => true, 'dd' => true),
         'dd' => array('dt' => true, 'dd' => true),

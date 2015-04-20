@@ -21,7 +21,6 @@ include_once('pharse_selector_html.php');
  */
 class HTML_Node
 {
-
     /**
      * Element Node, used for regular elements
      */
@@ -1946,16 +1945,18 @@ class HTML_Node
         $s = new $this->selectClass($this, $query, $check_self, $recursive);
         $res = $s->result;
         unset($s);
-        if (is_array($res) && ($index === true) && (count($res) === 1)) {
-            return $res[0];
-        } elseif (is_int($index) && is_array($res)) {
-            if ($index < 0) {
-                $index += count($res);
+        if (is_array($res)) {
+            if (($index === true) && (count($res) === 1)) {
+                return $res[0];
             }
-            return ($index < count($res)) ? $res[$index] : null;
-        } else {
-            return $res;
+            if (is_int($index)) {
+                if ($index < 0) {
+                    $index += count($res);
+                }
+                return ($index < count($res)) ? $res[$index] : null;
+            }
         }
+        return $res;
     }
 
     /**

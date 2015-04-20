@@ -853,10 +853,9 @@ class HTML_Selector
         }
 
         foreach ($tmp as $t) {
-            if (($sibling = $t->getNextSibling()) !== false) {
-                if ($sibling->match($c, true, $this->custom_filter_map)) {
-                    $this->result[] = $sibling;
-                }
+            $sibling = $t->getNextSibling();
+            if ($sibling !== false && $sibling->match($c, true, $this->custom_filter_map)) {
+                $this->result[] = $sibling;
             }
         }
 
