@@ -382,8 +382,9 @@ class HTML_Parser_Base extends Tokenizer_Base
                 $this->status['self_close'] = true;
                 $this->pos++;
 
-                if (isset($this->char_map[$this->doc[$this->pos]]) && (!is_string($this->char_map[$this->doc[$this->pos]]))) {
-                    $this->token = $this->char_map[$this->doc[$this->pos]];
+                $char = $this->doc[$this->pos];
+                if (isset($this->char_map[$char]) && (!is_string($this->char_map[$char]))) {
+                    $this->token = $this->char_map[$char];
                 } else {
                     $this->token = self::TOK_UNKNOWN;
                 }
