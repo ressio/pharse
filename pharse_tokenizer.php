@@ -274,7 +274,7 @@ class Tokenizer_Base
             $this->whitespace = array_fill_keys(array_values($ws), true);
             $this->buildCharMap();
         } else {
-            $this->setWhiteSpace(str_split($ws));
+            $this->setWhitespace(str_split($ws));
         }
     }
 
