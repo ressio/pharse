@@ -1855,7 +1855,7 @@ class HTML_Node
         }
 
         $mode = explode(' ', strtolower($mode));
-        $match = ((isset($mode[1]) && ($mode[1] === 'not')) ? 'false' : 'true');
+        $match = !(isset($mode[1]) && ($mode[1] === 'not'));
 
         return $this->getChildrenByMatch(
             array(
@@ -1886,7 +1886,7 @@ class HTML_Node
         }
 
         $tag = explode(' ', strtolower($tag));
-        $match = ((isset($tag[1]) && ($tag[1] === 'not')) ? 'false' : 'true');
+        $match = !(isset($tag[1]) && ($tag[1] === 'not'));
 
         return $this->getChildrenByMatch(
             array(
