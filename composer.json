@@ -5,7 +5,7 @@
     "description": "Fastest PHP HTML Parser",
     "keywords": ["dom", "html", "html5", "parser", "php"],
     "homepage": "https://github.com/ressio/pharse",
-    "license": ["GPL", "Artistic"],
+    "license": ["GPL-2.0-or-later", "Artistic-1.0-Perl"],
     "authors": [
         {
             "name": "RESS.IO Team",
